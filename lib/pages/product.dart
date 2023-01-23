@@ -13,3 +13,12 @@ class _ProductPageState extends State<ProductPage> {
     return Container();
   }
 }
+
+class _Wrapper extends StatelessWidget {
+  const _Wrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
