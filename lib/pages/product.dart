@@ -13,12 +13,3 @@ class _ProductPageState extends State<ProductPage> {
     return Scaffold();
   }
 }
-
-class _Wrapper extends StatelessWidget {
-  const _Wrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
