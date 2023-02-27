@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.issue.pull_request && github.event.comment.body == '/build'
+    if: ${{github.event.issue.pull_request && github.event.comment.body == '/build'}}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
