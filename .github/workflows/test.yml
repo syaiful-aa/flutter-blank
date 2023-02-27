@@ -1,0 +1,38 @@
+name: Unit test
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && github.event.comment.body == '/run-test'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: "12.x"
+          cache: 'gradle' 
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.3.8"
+          channel: 'stable'
+          cache: true
+      
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Run test
+        run: |
+          flutter test --no-pub --coverage 
+          genhtml coverage/lcov.info -o coverage/html
+      - name: Install lcov
+        uses: hrishikesh-kadam/setup-lcov@v1
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-details
+          path: coverage
+    
