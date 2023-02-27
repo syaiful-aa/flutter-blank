@@ -6,7 +6,7 @@ on:
       - created
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/run-test') }} 
     steps:
@@ -25,14 +25,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
       - name: Run test
-        run: |
-          flutter test --no-pub --coverage 
-          genhtml coverage/lcov.info -o coverage/html
+        run: flutter test --no-pub --coverage
       - name: Install lcov
         uses: hrishikesh-kadam/setup-lcov@v1
       - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: coverage-details
-          path: coverage
+          path: coverage/lcov.info
     
