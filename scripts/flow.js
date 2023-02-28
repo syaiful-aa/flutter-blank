@@ -5,3 +5,4 @@ function getData() {
 
 // getData()
 console.log('koplak')
+console.log('kocak')
