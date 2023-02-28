@@ -1,9 +1,7 @@
 name: Flow test
 
 on:
-  issue_comment:
-    types:
-      - created
+  workflow_dispatch
 
 jobs:
   job1:
@@ -21,9 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: job1
     steps:
-      - env:
+      - name: setup branch 
+        uses: actions/checkout@v3 
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: pass
+        env:
           OUTPUT1: ${{needs.job1.outputs.output1}}
           OUTPUT2: ${{needs.job1.outputs.output2}}
         run: |
           echo "$OUTPUT1 $OUTPUT2" 
-          sh scripts/flow.js
+          sh scripts/flow.sh
+          node scripts/flow.js
