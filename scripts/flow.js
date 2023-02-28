@@ -1,3 +1,7 @@
-console.log(process.env)
-console.log("FROM_JS=this is from js" >> "$GITHUB_ENV")
 
+const getData = () => {
+    return 'yahoo'
+}
+
+console.log(process.env)
+getData()

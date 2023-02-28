@@ -39,10 +39,11 @@ jobs:
         run: |
           echo "$OUTPUT1 $OUTPUT2" 
           sh scripts/flow.sh
-          node scripts/flow.js
+          FROM_JS=$(node scripts/flow.js)
+          echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
       - name: receive
         run: | 
           echo ${{ steps.pass.outputs.test }}
           echo ${{ steps.pass.outputs.message }}
-          echo $FROM_JS
+          echo ${{ steps.pass.outputs.fromJs }}
           echo $ANDROID_HOME
