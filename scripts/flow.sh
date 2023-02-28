@@ -1,1 +1,1 @@
-echo "hello"
+echo "$OUTPUT1 $OUTPUT2 from inside" 
