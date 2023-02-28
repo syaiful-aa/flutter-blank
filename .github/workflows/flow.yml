@@ -20,7 +20,9 @@ jobs:
     needs: job1
     steps:
       - name: setup branch 
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v3
+        with:
+          ref: 'test/cicd'
       - name: setup node
         uses: actions/setup-node@v3
         with:
