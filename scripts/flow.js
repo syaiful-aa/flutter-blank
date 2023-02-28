@@ -1,5 +1,5 @@
 
-const getData = () => {
+function getData() {
     return 'yahoo'
 }
 
