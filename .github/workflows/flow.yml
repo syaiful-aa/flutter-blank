@@ -44,3 +44,4 @@ jobs:
         run: | 
           echo ${{ steps.pass.outputs.test }}
           echo ${{ steps.pass.outputs.message }}
+          echo ${{ steps.pass.outputs.js }}
