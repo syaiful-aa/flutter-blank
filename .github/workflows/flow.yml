@@ -41,4 +41,6 @@ jobs:
           sh scripts/flow.sh
           node scripts/flow.js
       - name: receive
-        run: echo ${{ steps.pass.outputs.test }}
+        run: | 
+          echo ${{ steps.pass.outputs.test }}
+          echo ${{ steps.pass.outputs.message }}
