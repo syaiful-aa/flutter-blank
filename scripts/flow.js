@@ -3,4 +3,5 @@ function getData() {
     return 'yahoo'
 }
 
-getData()
+// getData()
+console.log('koplak')
