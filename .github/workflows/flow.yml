@@ -1,7 +1,9 @@
 name: Flow test
 
 on:
-  workflow_dispatch
+  issue_comment:
+    types:
+      - created
 
 jobs:
   job1:
