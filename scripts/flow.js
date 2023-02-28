@@ -1,2 +1,3 @@
 console.log(process.env)
-console.log("js=this is from js" >> "$GITHUB_OUTPUT")
+console.log("FROM_JS=this is from js" >> "$GITHUB_ENV")
+
