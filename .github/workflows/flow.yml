@@ -34,7 +34,7 @@ jobs:
       - name: setup branch 
         uses: actions/checkout@v3
         with:
-          ref: ${{ steps.comment-branch.outputs.head_ref }}
+          ref: ${{ steps.comment-branch.outputs.base_ref }}
       - name: get PR details
         uses: 8BitJonny/gh-get-current-pr@2.1.3
         id: get-pr-details
@@ -60,13 +60,12 @@ jobs:
           echo ${{ steps.comment-branch.outputs.head_ref }}
           echo ${{ steps.comment-branch.outputs.head_sha }}
 
-          echo $GITHUB_OUTPUT
           echo "$OUTPUT1 $OUTPUT2" 
 
           
-          # FROM_JS=$(node scripts/flow.js)
-          # echo $FROM_JS
-          # echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
+          FROM_JS=$(node scripts/flow.js)
+          echo $FROM_JS
+          echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
           sh scripts/flow.sh morning
       - name: receive
         run: | 
