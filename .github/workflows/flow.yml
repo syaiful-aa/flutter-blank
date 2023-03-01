@@ -53,7 +53,6 @@ jobs:
         run: |
           echo "from ${{ fromJSON(steps.get-pr-details.outputs.pr).head.ref }}"
           echo "to ${{ fromJSON(steps.get-pr-details.outputs.pr).base.ref }}"
-          echo "all data ${{ fromJSON(steps.get-pr-details.outputs.pr) }}"
 
 
           echo ${{ steps.comment-branch.outputs.base_ref }}
@@ -63,6 +62,7 @@ jobs:
 
           echo $GITHUB_OUTPUT
           echo "$OUTPUT1 $OUTPUT2" 
+          
           sh scripts/flow.sh morning
           FROM_JS=$(node scripts/flow.js)
           echo $FROM_JS
