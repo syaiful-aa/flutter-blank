@@ -51,9 +51,9 @@ jobs:
           OUTPUT1: ${{needs.job1.outputs.output1}}
           OUTPUT2: ${{needs.job1.outputs.output2}}
         run: |
-          echo "from ${{ fromJSON(steps.PR.outputs.pr).head.ref }}"
-          echo "to ${{ fromJSON(steps.PR.outputs.pr).base.ref }}"
-          echo "all data ${{ fromJSON(steps.PR.outputs.pr) }}"
+          echo "from ${{ fromJSON(steps.get-pr-details.outputs.pr).head.ref }}"
+          echo "to ${{ fromJSON(steps.get-pr-details.outputs.pr).base.ref }}"
+          echo "all data ${{ fromJSON(steps.get-pr-details.outputs.pr) }}"
 
 
           echo ${{ steps.comment-branch.outputs.base_ref }}
