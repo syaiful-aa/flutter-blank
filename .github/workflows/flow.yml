@@ -13,10 +13,24 @@ jobs:
       output1: ${{ steps.step1.outputs.test }}
       output2: ${{ steps.step2.outputs.test }}
     steps:
+      - name: get pull request metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+        id: comment-branch
+      - name: get PR details
+        uses: 8BitJonny/gh-get-current-pr@2.1.3
+        id: get-pr-details
+        with:
+          github-token: ${{ github.token }}
+          sha: ${{ steps.comment-branch.outputs.head_sha }}
       - id: step1
-        run: echo "test=hello" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "test=hello" >> "$GITHUB_OUTPUT"
+          echo ${{ steps.get-pr-details.outputs }}
+          echo ${{ steps.comment-branch.outputs }}
+          echo $GITHUB_OUTPUT
       - id: step2
         run: echo "test=world" >> "$GITHUB_OUTPUT"
+      
   job2:
     runs-on: ubuntu-latest
     needs: job1
