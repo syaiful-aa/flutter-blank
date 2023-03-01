@@ -64,9 +64,9 @@ jobs:
           echo "$OUTPUT1 $OUTPUT2" 
 
           
-          FROM_JS=$(node scripts/flow.js)
-          echo $FROM_JS
-          echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
+          # FROM_JS=$(node scripts/flow.js)
+          # echo $FROM_JS
+          # echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
           sh scripts/flow.sh morning
       - name: receive
         run: | 
