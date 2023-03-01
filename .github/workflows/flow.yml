@@ -51,8 +51,16 @@ jobs:
           OUTPUT1: ${{needs.job1.outputs.output1}}
           OUTPUT2: ${{needs.job1.outputs.output2}}
         run: |
-          echo ${{ fromJson(steps.get-pr-details.outputs) }}
-          echo ${{ fromJson(steps.comment-branch.outputs) }}
+          echo "from ${{ fromJSON(steps.PR.outputs.pr).head.ref }}"
+          echo "to ${{ fromJSON(steps.PR.outputs.pr).base.ref }}"
+          echo "all data ${{ fromJSON(steps.PR.outputs.pr) }}"
+
+
+          echo ${{ steps.comment-branch.outputs.base_ref }}
+          echo ${{ steps.comment-branch.outputs.base_sha }}
+          echo ${{ steps.comment-branch.outputs.head_ref }}
+          echo ${{ steps.comment-branch.outputs.head_sha }}
+
           echo $GITHUB_OUTPUT
           echo "$OUTPUT1 $OUTPUT2" 
           sh scripts/flow.sh morning
