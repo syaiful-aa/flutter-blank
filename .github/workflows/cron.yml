@@ -3,7 +3,7 @@ name: Scheduled Job
 on:
   workflow_dispatch:
   schedule:
-    - cron: '{{0 9 * * Sun [ $(expr $(date +%W) % 2) -eq 1 ] && /path/to/command}}'
+    - cron: '0 9 * * Sun [ $(expr $(date +\%W) \% 2) -eq 1 ] && /path/to/command'
 
 jobs:
   build:
