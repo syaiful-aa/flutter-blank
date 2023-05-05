@@ -3,7 +3,7 @@ name: Scheduled Job
 on:
   workflow_dispatch:
   schedule:
-    - cron: '${{ github.event.schedule }}'
+    - cron: '*/10 * * * *'
 
 jobs:
   build:
