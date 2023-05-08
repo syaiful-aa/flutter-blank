@@ -21,7 +21,7 @@ jobs:
         run: echo "test=hello" >> "$GITHUB_OUTPUT"
       - id: step2
         run: echo "test=world" >> "$GITHUB_OUTPUT"
-      - id: check command
+      - id: check-command
         run: |
           input="build dev --debug, dev --release"
 
