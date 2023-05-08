@@ -23,7 +23,7 @@ jobs:
         run: echo "test=world" >> "$GITHUB_OUTPUT"
       - id: check-command
         run: |
-          rawInput=${{ github.event.comment.body }}
+          rawInput="${{ github.event.comment.body }}"
           input=${rawInput///""}
 
           IFS=" " read -ra inputSplitted <<< "$input"

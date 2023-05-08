@@ -1,6 +1,7 @@
 #!/bin/bash
 
-input="build dev --debug, dev --release"
+rawInput="/build dev --debug, dev --release"
+input=${rawInput///""}
 
 IFS=" " read -ra inputSplitted <<< "$input"
 action=${inputSplitted[0]}
