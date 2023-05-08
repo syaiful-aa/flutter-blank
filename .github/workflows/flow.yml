@@ -1,6 +1,6 @@
 name: Flow test
 
-on:
+# on:
   # issue_comment:
   #   types:
   #     - created
