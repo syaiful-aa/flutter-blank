@@ -3,24 +3,32 @@ name: Ondemand Build
 on:
   workflow_dispatch:
     inputs:
-      name:
+      flavor:
         type: choice
-        description: Who to greet
+        description: Flavor
         options: 
-        - monalisa
-        - cschleiden
-      message:
-        required: true
-      use-emoji:
-        type: boolean
-        description: Include 🎉🤣 emojis
-      environment:
-        type: environment
+        - Dev
+        - Staging
+        - Production
+      is-debug:
+        description: Debug mode
+        required: false
+      artifact:
+        type: choice
+        description: Artifact Type
+        options: 
+        - Apk
+        - Appbundle
 
 jobs:
   greet:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Send greeting
-      run: echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs.use-emoji == 'true'] }} ${{ github.event.inputs.name }}"
+    - name: Entry point
+      run: |
+        echo "Build artifact with these configuration: ${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs.use-emoji == 'true'] }} ${{ github.event.inputs.name }}"
+        echo "Flavor:  ${{ github.event.inputs.flavor }}"
+        echo "Is debug mode?:  ${{ github.event.inputs.is-debug }}"
+        echo "Artifact Type:  ${{ github.event.inputs.artifact }}"
+
