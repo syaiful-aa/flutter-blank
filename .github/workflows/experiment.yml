@@ -46,10 +46,7 @@ jobs:
         id: check-output
         run: |
           echo "start"
-          echo "output: ${{ steps.check-command.outputs.arguments }}"
-          echo "output: ${{ steps.check-command.outputs.arguments2 }}"
-          echo "output: ${{ fromJSON(steps.check-command.outputs.arguments) }}"
-          echo "output: ${{ fromJSON(steps.check-command.outputs.arguments2) }}"
+         
 
 
 
