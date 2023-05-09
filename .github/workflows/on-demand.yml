@@ -21,7 +21,7 @@ on:
         - Appbundle
 
 jobs:
-  config:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
