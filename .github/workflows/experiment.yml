@@ -38,7 +38,7 @@ jobs:
             echo $option
           done
 
-          JSON="[$(echo $branches | sed 's/ /, /g')]"
+          JSON="[$(echo $optionsSplitted | sed 's/ /, /g')]"
 
           echo "arguments=$JSON" >> "$GITHUB_OUTPUT"
           echo "arguments2=$optionsSplitted" >> "$GITHUB_OUTPUT"
