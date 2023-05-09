@@ -16,10 +16,10 @@ jobs:
       - name: parsing
         id: parsing
         run: |
-          cat ${{ github.event.comment.body }} > example.txt
-          for line in example.txt
+          echo ${{ github.event.comment.body }} >> example.txt
+          for line in $(cat example.txt)
           do
-            echo line
+            echo $line
           done
    
   # job-validation:
