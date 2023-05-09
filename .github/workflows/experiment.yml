@@ -16,7 +16,8 @@ jobs:
       - name: parsing
         id: parsing
         run: |
-          echo ${{ github.event.comment.body }}
+          echo ${{ github.event.comment.body }} | sed -i ':a;N;$!ba;s/\n/\t/g' 
+          
    
   # job-validation:
   #   runs-on: ubuntu-latest
