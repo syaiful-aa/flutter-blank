@@ -10,18 +10,16 @@ permissions:
   pull-requests: read
 
 jobs:
-  job1:
+  job-validation:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && (startsWith(github.event.comment.body, '/build') || startsWith(github.event.comment.body, '/test')) }} 
     outputs:
-      output1: ${{ steps.step1.outputs.test }}
-      output2: ${{ steps.step2.outputs.test }}
+      arguments: ${{ steps.check-command.outputs.arguments }}
+      arguments2: ${{ steps.check-command.outputs.arguments2 }}
+
     steps:
-      - id: step1
-        run: echo "test=hello" >> "$GITHUB_OUTPUT"
-      - id: step2
-        run: echo "test=world" >> "$GITHUB_OUTPUT"
-      - id: check-command
+      - name: Check command from input
+        id: check-command
         run: |
           rawInput="${{ github.event.comment.body }}"
           input=${rawInput///""}
@@ -37,55 +35,19 @@ jobs:
           for option in "${optionsSplitted[@]}"; do
             echo $option
           done
+
+          echo "arguments=${optionsSplitted[@]}" >> "$GITHUB_OUTPUT"
+          echo "arguments2=$optionsSplitted" >> "$GITHUB_OUTPUT"
+
+      - name: Check output
+        id: check-output
+        run: |
+          echo "output: ${{ steps.check-command.outputs.arguments }}"
+          echo "output: ${{ steps.check-command.outputs.arguments2 }}"
+          echo "output: ${{ fromJSON(steps.check-command.outputs.arguments) }}"
+          echo "output: ${{ fromJSON(steps.check-command.outputs.arguments2) }}"
+
+
+
+
       
-  # job2:
-  #   runs-on: ubuntu-latest
-  #   needs: job1
-  #   outputs:
-  #     output_inside: ${{ steps.pass.outputs.test }}
-  #   steps:
-  #     - name: get pull request metadata
-  #       uses: xt0rted/pull-request-comment-branch@v1
-  #       id: comment-branch
-  #     - name: setup branch 
-  #       uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ steps.comment-branch.outputs.base_ref }}
-  #     - name: get PR details
-  #       uses: 8BitJonny/gh-get-current-pr@2.1.3
-  #       id: get-pr-details
-  #       with:
-  #         github-token: ${{ github.token }}
-  #         sha: ${{ steps.comment-branch.outputs.head_sha }}
-  #     - name: setup node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #     - name: pass
-  #       id: pass
-  #       env:
-  #         OUTPUT1: ${{needs.job1.outputs.output1}}
-  #         OUTPUT2: ${{needs.job1.outputs.output2}}
-  #       run: |
-  #         echo "from ${{ fromJSON(steps.get-pr-details.outputs.pr).head.ref }}"
-  #         echo "to ${{ fromJSON(steps.get-pr-details.outputs.pr).base.ref }}"
-
-
-  #         echo ${{ steps.comment-branch.outputs.base_ref }}
-  #         echo ${{ steps.comment-branch.outputs.base_sha }}
-  #         echo ${{ steps.comment-branch.outputs.head_ref }}
-  #         echo ${{ steps.comment-branch.outputs.head_sha }}
-
-  #         echo "$OUTPUT1 $OUTPUT2" 
-
-          
-  #         FROM_JS=$(node scripts/flow.js)
-  #         echo $FROM_JS
-  #         echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
-  #         sh scripts/flow.sh morning
-  #     - name: receive
-  #       run: | 
-  #         echo ${{ steps.pass.outputs.test }}
-  #         echo ${{ steps.pass.outputs.message }}
-  #         echo ${{ steps.pass.outputs.fromJs }}
-  #         echo $ANDROID_HOME

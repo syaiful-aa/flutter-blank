@@ -14,3 +14,4 @@ IFS="," read -ra optionsSplitted <<< "$options"
 for option in "${optionsSplitted[@]}"; do
   echo $option
 done
+echo "${optionsSplitted[@]}"
