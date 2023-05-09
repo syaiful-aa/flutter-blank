@@ -21,7 +21,7 @@ on:
         - Appbundle
 
 jobs:
-  greet:
+  config:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,5 +31,12 @@ jobs:
         echo "Flavor:  ${{ github.event.inputs.flavor }}"
         echo "Is debug mode?:  ${{ github.event.inputs.is-debug }}"
         echo "Artifact Type:  ${{ github.event.inputs.artifact }}"
-        echo "Metadata: ${{ github.ref }} | ${{ github.sha }}"
+        echo "Metadata: ${{ github.ref }} | ${{ github.ref_name }} | ${{ github.sha }}"
+    - name: setup branch 
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.ref }}
+      run: |
+        pwd
+        ls
 
