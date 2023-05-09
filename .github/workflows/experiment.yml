@@ -16,7 +16,7 @@ jobs:
     outputs:
       arguments: ${{ steps.check-command.outputs.arguments }}
       arguments2: ${{ steps.check-command.outputs.arguments2 }}
-
+      command: ${{ steps.check-command.outputs.command }}
     steps:
       - name: Check command from input
         id: check-command
@@ -29,6 +29,8 @@ jobs:
           options=${input/$action/""}
 
           echo $action
+          echo "command=$action" >> "$GITHUB_OUTPUT"
+
           echo $options
 
           IFS="," read -ra optionsSplitted <<< "$options"
@@ -46,7 +48,7 @@ jobs:
         id: check-output
         run: |
           echo "start"
-          echo ${{ fromJSON(steps.check-command.outputs.arguments) }}
+          echo ${{ fromJSON(steps.check-command.outputs.command) }}
 
 
 
