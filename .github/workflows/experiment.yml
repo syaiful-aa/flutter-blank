@@ -15,8 +15,7 @@ jobs:
     steps: 
       - name: parsing
       - id: parsing
-      - run: |
-          echo ${{ github.event.comment.body }}
+      - run: echo ${{ github.event.comment.body }}
    
   # job-validation:
   #   runs-on: ubuntu-latest
