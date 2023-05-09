@@ -10,48 +10,56 @@ permissions:
   pull-requests: read
 
 jobs:
-  job-validation:
+  parsing:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && (startsWith(github.event.comment.body, '/build') || startsWith(github.event.comment.body, '/test')) }} 
-    outputs:
-      arguments: ${{ steps.check-command.outputs.arguments }}
-      arguments2: ${{ steps.check-command.outputs.arguments2 }}
-      command: ${{ steps.check-command.outputs.command }}
-    steps:
-      - name: Check command from input
-        id: check-command
-        run: |
-          rawInput="${{ github.event.comment.body }}"
-          input=${rawInput///""}
+    steps: 
+      - name: print
+      - id: print
+      - run: |
+          echo ${{ github.event.comment.body }}
+   
+  # job-validation:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.event.issue.pull_request && (startsWith(github.event.comment.body, '/build') || startsWith(github.event.comment.body, '/test')) }} 
+  #   outputs:
+  #     arguments: ${{ steps.check-command.outputs.arguments }}
+  #     arguments2: ${{ steps.check-command.outputs.arguments2 }}
+  #     command: ${{ steps.check-command.outputs.command }}
+  #   steps:
+  #     - name: Check command from input
+  #       id: check-command
+  #       run: |
+  #         rawInput="${{ github.event.comment.body }}"
+  #         input=${rawInput///""}
 
-          IFS=" " read -ra inputSplitted <<< "$input"
-          action=${inputSplitted[0]}
-          options=${input/$action/""}
+  #         IFS=" " read -ra inputSplitted <<< "$input"
+  #         action=${inputSplitted[0]}
+  #         options=${input/$action/""}
 
-          echo $action
-          echo "command=$action" >> "$GITHUB_OUTPUT"
+  #         echo $action
+  #         echo "command=$action" >> "$GITHUB_OUTPUT"
 
-          echo $options
+  #         echo $options
 
-          IFS="," read -ra optionsSplitted <<< "$options"
-          for option in "${optionsSplitted[@]}"; do
-            echo $option
-          done
+  #         IFS="," read -ra optionsSplitted <<< "$options"
+  #         for option in "${optionsSplitted[@]}"; do
+  #           echo $option
+  #         done
 
-          JSON="[$(echo $optionsSplitted | sed 's/ /, /g')]"
+  #         JSON="[$(echo $optionsSplitted | sed 's/ /, /g')]"
 
-          echo "arguments=$JSON" >> "$GITHUB_OUTPUT"
-          echo "arguments2=$optionsSplitted" >> "$GITHUB_OUTPUT"
+  #         echo "arguments=$JSON" >> "$GITHUB_OUTPUT"
+  #         echo "arguments2=$optionsSplitted" >> "$GITHUB_OUTPUT"
 
-          echo "finish"
+  #         echo "finish"
 
 
-      - name: Check output
-        id: check-output
-        run: |
-          echo "start"
-          echo ${{ steps.check-command.outputs.command }}
-          echo ${{ steps.check-command.outputs.arguments }}
+  #     - name: Check output
+  #       id: check-output
+  #       run: |
+  #         echo "start"
+  #         echo ${{ steps.check-command.outputs.command }}
+  #         echo ${{ steps.check-command.outputs.arguments }}
 
 
 
