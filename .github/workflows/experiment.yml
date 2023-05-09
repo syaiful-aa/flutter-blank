@@ -13,8 +13,8 @@ jobs:
   parsing:
     runs-on: ubuntu-latest
     steps: 
-      - name: print
-      - id: print
+      - name: parsing
+      - id: parsing
       - run: |
           echo ${{ github.event.comment.body }}
    
