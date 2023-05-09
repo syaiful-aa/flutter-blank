@@ -16,8 +16,11 @@ jobs:
       - name: parsing
         id: parsing
         run: |
-          echo ${{ github.event.comment.body }} | sed -i ':a;N;$!ba;s/\n/\t/g' 
-          
+          cat ${{ github.event.comment.body }} > example.txt
+          for line in example.txt
+          do
+            echo line
+          done
    
   # job-validation:
   #   runs-on: ubuntu-latest
