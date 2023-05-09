@@ -48,7 +48,7 @@ jobs:
         id: check-output
         run: |
           echo "start"
-          echo ${{ fromJSON(steps.check-command.outputs.command) }}
+          echo ${{ steps.check-command.outputs.command }}
 
 
 
