@@ -35,7 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ${{ fromJson(needs.parsing.outputs.flavors) }}
+        flavor: []
+        # flavor: ${{ fromJson(needs.parsing.outputs.flavors) }}
     steps:
       - name: buid
         run: echo ${{ matrix.flavor }}
