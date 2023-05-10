@@ -12,6 +12,8 @@ permissions:
 jobs:
   parsing:
     runs-on: ubuntu-latest
+    outputs:
+      flavors: ${{ steps.get-flavors.outputs.flavors }}
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,10 +23,21 @@ jobs:
         with:
           who-to-greet: 'Mona the Octocat'
       # Use the output from the `hello` step
-      - name: Get the output time
+      - name: Get the flavors
+        id: get-flavors
         run: | 
           echo "The time was ${{ steps.hello.outputs.time }}"
-          echo ${{ steps.hello.outputs.flavors }}
+          echo "matrix=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
+
+  run-matrix:
+    needs: parsing
+    strategy:
+      matrix:
+        flavor: ${{ fromJson(needs.testing.outputs.flavors) }}
+    steps:
+      - name: buid
+        run: echo ${{ matrix.flavor }}
+          
 
    
   # job-validation:
