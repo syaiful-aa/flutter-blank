@@ -9803,7 +9803,7 @@ try {
   console.log(`The event payload: ${payload}`);
 
   const arr = (/* unused pure expression or super */ null && (["John", "Peter", "Sally", "Jane"]));
-  core.setOutput("flavors", "['ipul', 'pule']");
+  core.setOutput("flavors", "[\'ipul\', \'pule\']");
 } catch (error) {
   core.setFailed(error.message);
 }
