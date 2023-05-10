@@ -9802,7 +9802,7 @@ try {
   const payload = JSON.stringify(github.context.payload, undefined, 2)
   console.log(`The event payload: ${payload}`);
 
-  const arr = ["John", "Peter", "Sally", "Jane"];
+  const arr = ["dev --debug", "staging --release"];
   core.setOutput("flavors", JSON.stringify(arr));
 } catch (error) {
   core.setFailed(error.message);
