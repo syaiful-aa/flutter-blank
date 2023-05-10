@@ -27,9 +27,9 @@ jobs:
         id: get-flavors
         run: | 
           echo "The time was ${{ steps.hello.outputs.time }}"
-          echo "matrix=['dev','staging']" >> $GITHUB_OUTPUT
+          echo "flavors=['dev','staging']" >> $GITHUB_OUTPUT
           echo ${{ steps.hello.outputs.flavors }}
-          # echo "matrix=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
+          # echo "flavors=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
