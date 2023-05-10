@@ -13,6 +13,8 @@ jobs:
   parsing:
     runs-on: ubuntu-latest
     steps: 
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Hello world action step
         id: hello
         uses: ./.github/actions/job-validation
