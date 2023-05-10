@@ -9802,8 +9802,8 @@ try {
   const payload = JSON.stringify(github.context.payload, undefined, 2)
   console.log(`The event payload: ${payload}`);
 
-  const arr = ["John", "Peter", "Sally", "Jane"];
-  core.setOutput("flavors", JSON.stringify(arr));
+  const arr = (/* unused pure expression or super */ null && (["John", "Peter", "Sally", "Jane"]));
+  core.setOutput("flavors", "['ipul', 'pule']");
 } catch (error) {
   core.setFailed(error.message);
 }
