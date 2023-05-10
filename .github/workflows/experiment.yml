@@ -31,6 +31,7 @@ jobs:
 
   run-matrix:
     needs: parsing
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         flavor: ${{ fromJson(needs.testing.outputs.flavors) }}
