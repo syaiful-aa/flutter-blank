@@ -27,9 +27,8 @@ jobs:
         id: get-flavors
         run: | 
           echo "The time was ${{ steps.hello.outputs.time }}"
-          echo "flavors=${{ toJson([dev, staging]) }}" >> $GITHUB_OUTPUT
           echo ${{ steps.hello.outputs.flavors }}
-          # echo "flavors=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
+          echo "flavors=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
