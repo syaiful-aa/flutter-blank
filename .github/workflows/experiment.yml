@@ -29,14 +29,14 @@ jobs:
           echo "The time was ${{ steps.hello.outputs.time }}"
           echo "matrisx=['dev','staging']" 
           echo ${{ toJson(steps.hello.outputs.flavors) }}
-          echo "matrix=${{ toJson(steps.hello.outputs.flavors) }}" >> $GITHUB_OUTPUT
+          echo "matrix=${{ steps.hello.outputs.flavors }}" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ${{ fromJson(needs.testing.outputs.flavors) }}
+        flavor: ${{ needs.testing.outputs.flavors }}
     steps:
       - name: buid
         run: echo ${{ matrix.flavor }}
