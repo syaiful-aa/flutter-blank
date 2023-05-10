@@ -13,37 +13,35 @@ jobs:
   parsing:
     runs-on: ubuntu-latest
     outputs:
-      flavors: ${{ steps.get-flavors.outputs.flavors }}
+      action: ${{ steps.get-output.outputs.action }}
+      flavors: ${{ steps.get-output.outputs.flavors }}
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Hello world action step
-        id: hello
-        uses: ./.github/actions/job-validation
+      - name: Parse command
+        id: parse-input
+        uses: ./.github/actions/command-parser
         with:
-          who-to-greet: 'Mona the Octocat'
-      # Use the output from the `hello` step
-      - name: Get the flavors
-        id: get-flavors
+          command: ${{ github.event.comment.body }}
+      - name: Get job action and build flavors
+        id: get-output
         run: | 
-          echo "The time was ${{ steps.hello.outputs.time }}"
-          echo ${{ steps.hello.outputs.flavors }}
-          echo "flavors=${{ toJson(steps.hello.outputs.flavors) }}" >> $GITHUB_OUTPUT
+          echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
+          echo "flavors=${{ toJson(steps.parse-input.outputs.flavors) }}" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: []
-        # flavor: ${{ fromJson(needs.parsing.outputs.flavors) }}
+        flavor: ${{ fromJson(needs.parsing.outputs.flavors) }}
     steps:
       - name: buid
         run: echo ${{ matrix.flavor }}
           
 
    
-  # job-validation:
+  # command-parser:
   #   runs-on: ubuntu-latest
   #   if: ${{ github.event.issue.pull_request && (startsWith(github.event.comment.body, '/build') || startsWith(github.event.comment.body, '/test')) }} 
   #   outputs:

@@ -9793,17 +9793,17 @@ const core = __nccwpck_require__(8781);
 const github = __nccwpck_require__(1637);
 
 try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput('who-to-greet');
-  console.log(`Hello ${nameToGreet}!`);
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
+  const command = core.getInput('command').replace('/', '');
+  const action = command.split(' ')[0];
+  const flavors = command.replace(action,'').split(',').map(e => e.trim())
+
+  core.setOutput("action", action);
+  core.setOutput("flavors", JSON.stringify(flavors));
+
+
+  // TODO: remove code below. Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2)
   console.log(`The event payload: ${payload}`);
-
-  const arr = ["dev --debug", "staging --release"];
-  core.setOutput("flavors", JSON.stringify(arr));
 } catch (error) {
   core.setFailed(error.message);
 }

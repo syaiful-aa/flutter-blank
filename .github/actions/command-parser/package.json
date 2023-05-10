@@ -1,5 +1,5 @@
 {
-  "name": "job-validation",
+  "name": "command-parser",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

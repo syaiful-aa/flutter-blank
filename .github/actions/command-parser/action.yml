@@ -1,13 +1,12 @@
 name: 'Job Validation'
 description: 'Greet someone and record the time'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  command:
+    description: 'command from PR comment'
     required: true
-    default: 'World'
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  action:
+    description: 'The job from input command'
   flavors:
     description: 'Build flavors'
 runs:
