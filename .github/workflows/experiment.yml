@@ -13,14 +13,14 @@ jobs:
   parsing:
     runs-on: ubuntu-latest
     steps: 
-      - name: parsing
-        id: parsing
-        run: |
-          echo ${{ github.event.comment.body }} >> example.txt
-          for line in $(cat example.txt)
-          do
-            echo $line
-          done
+      - name: Hello world action step
+        id: hello
+        uses: ./.github/actions/job-validation
+        with:
+          who-to-greet: 'Mona the Octocat'
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
    
   # job-validation:
   #   runs-on: ubuntu-latest
