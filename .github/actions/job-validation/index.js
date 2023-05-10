@@ -12,7 +12,7 @@ try {
   console.log(`The event payload: ${payload}`);
 
   const arr = ["John", "Peter", "Sally", "Jane"];
-  core.setOutput("flavors", "[\'ipul\', \'pule\']");
+  core.setOutput("flavors", JSON.stringify(arr));
 } catch (error) {
   core.setFailed(error.message);
 }
