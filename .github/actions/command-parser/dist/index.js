@@ -9793,6 +9793,7 @@ const core = __nccwpck_require__(8781);
 const github = __nccwpck_require__(1637);
 
 
+
 try {
   const command = core.getInput('command').replace('/', '');
   const action = command.split(' ')[0];
@@ -9811,14 +9812,14 @@ try {
   core.setFailed(error.message);
 }
 
-const mapOption = function(option) {
+
+function mapOption(option) {
   return {
     'artifact': 'apk',
     'flavor': 'staging',
     'mode': 'release'
   };
-};
-
+}
 })();
 
 module.exports = __webpack_exports__;
