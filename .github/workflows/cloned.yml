@@ -26,7 +26,7 @@ jobs:
         id: get-output
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
-          echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
+          echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
 
   testing:
     needs: parsing
