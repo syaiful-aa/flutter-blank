@@ -29,9 +29,18 @@ jobs:
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build-options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
 
-  run-matrix:
+  testing:
     needs: parsing
     runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo "action: ${{ needs.parsing.outputs.action }}"
+
+  deploy:
+    needs: [parsing, testing]
+    runs-on: ubuntu-latest
+    if: ${{ needs.parsing.outputs.action == '/build'}}
     strategy:
       matrix:
         build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
@@ -41,7 +50,7 @@ jobs:
       BUILD_MODE: ${{ matrix.build-options.mode }}
       BUILD_OPTION: "${{ matrix.build-options.artifact }} ${{ matrix.build-options.flavor }} ${{ matrix.build-options.mode }}"
     steps:
-      - name: buid
+      - name: build
         run: |
           echo "$ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
           echo $BUILD_OPTION

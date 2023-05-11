@@ -2835,7 +2835,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(781);
 
 try {
-  const command = core.getInput('command').replace('/', '');
+  const command = core.getInput('command');
 
   const action = command.split(' ')[0];
   const validActions = ['/test', '/build'];
