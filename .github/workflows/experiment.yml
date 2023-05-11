@@ -14,8 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       action: ${{ steps.get-output.outputs.action }}
-      flavors: ${{ steps.get-output.outputs.flavors }}
-      options: ${{ steps.get-output.outputs.options }}
+      build-options: ${{ steps.get-output.outputs.build-options }}
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,31 +23,27 @@ jobs:
         uses: ./.github/actions/command-parser
         with:
           command: ${{ github.event.comment.body }}
-      - name: Get job action and build flavors
+      - name: Get job action and build options
         id: get-output
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
-          echo "flavors=${{ toJson(steps.parse-input.outputs.flavors) }}" >> $GITHUB_OUTPUT
-          echo ${{ steps.parse-input.outputs.options }}
-          echo ${{ toJson(steps.parse-input.outputs.options) }}
-          # echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
-          echo "options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.options) }}")" >> $GITHUB_OUTPUT
-      - name: Check
-        run: jq . <<< '${{ steps.get-output.outputs.options }}'
+          echo "build-options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        options: ${{ fromJSON(needs.parsing.outputs.options) }}
+        build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
     env:
-      mode: ${{ matrix.options.mode }}
+      ARTIFACT_TYPE: ${{ matrix.options.artifact }}
+      BUILD_MODE: ${{ matrix.options.mode }}
+      FLAVOR: ${{ matrix.options.flavor }}
     steps:
       - name: buid
         run: |
           echo ${{ matrix.options.mode }}
-          echo "mode $mode"
+          echo "mode $ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
           
 
    

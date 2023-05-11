@@ -7,9 +7,7 @@ inputs:
 outputs:
   action:
     description: 'The job from input command'
-  flavors:
-    description: 'Build flavors'
-  options:
+  build-options:
     description: 'Build options'
 runs:
   using: 'node16'
