@@ -42,7 +42,6 @@ jobs:
     steps:
       - name: buid
         run: |
-          echo ${{ matrix.options.mode }}
           echo "mode $ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
           
 
