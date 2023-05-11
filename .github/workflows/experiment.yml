@@ -36,9 +36,9 @@ jobs:
       matrix:
         build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
     env:
-      ARTIFACT_TYPE: ${{ matrix.options.artifact }}
-      BUILD_MODE: ${{ matrix.options.mode }}
-      FLAVOR: ${{ matrix.options.flavor }}
+      ARTIFACT_TYPE: ${{ matrix.build-options.artifact }}
+      BUILD_MODE: ${{ matrix.build-options.mode }}
+      FLAVOR: ${{ matrix.build-options.flavor }}
     steps:
       - name: buid
         run: |
