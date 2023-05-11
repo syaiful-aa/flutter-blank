@@ -1,5 +1,5 @@
-name: 'Job Validation'
-description: 'Greet someone and record the time'
+name: 'Command Parser'
+description: 'Parse command from PR comment'
 inputs:
   command:
     description: 'command from PR comment'
