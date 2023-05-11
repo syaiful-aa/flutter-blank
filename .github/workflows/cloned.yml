@@ -1,0 +1,60 @@
+name: Experiment
+
+on:
+  issue_comment:
+    types:
+      - created
+      
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+
+  parsing:
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.get-output.outputs.action }}
+      build-options: ${{ steps.get-output.outputs.build-options }}
+    steps: 
+      - name: Parse command
+        id: parse-input
+        uses: syaiful-aa/actions-experiment/command-parser@v2.0.1
+        with:
+          command: ${{ github.event.comment.body }}
+      - name: Get job action and build options
+        id: get-output
+        run: | 
+          echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
+          echo "build-options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
+
+  testing:
+    needs: parsing
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo "action: ${{ needs.parsing.outputs.action }}"
+
+  deploy:
+    needs: [parsing, testing]
+    runs-on: ubuntu-latest
+    if: ${{ needs.parsing.outputs.action == '/build'}}
+    strategy:
+      matrix:
+        build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
+    env:
+      ARTIFACT_TYPE: ${{ matrix.build-options.artifact }}
+      FLAVOR: ${{ matrix.build-options.flavor }}
+      BUILD_MODE: ${{ matrix.build-options.mode }}
+      BUILD_OPTION: "${{ matrix.build-options.artifact }} ${{ matrix.build-options.flavor }} ${{ matrix.build-options.mode }}"
+    steps:
+      - name: build
+        run: |
+          echo "$ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
+          echo $BUILD_OPTION
+          
+
+
+
+
