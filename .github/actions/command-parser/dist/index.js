@@ -2844,6 +2844,11 @@ try {
       'message': 'invalid action'
     }
   }
+  core.setOutput("action", action);
+
+  if (action === '/test') {
+    return;
+  }
 
   const options = command.replace(action, '').split(',').map(mapOption)
   if (action === '/build' && options.length === 0) {
@@ -2852,7 +2857,6 @@ try {
     }
   }
 
-  core.setOutput("action", action);
   core.setOutput("build-options", JSON.stringify(options));
 } catch (error) {
   core.setFailed(error.message);
