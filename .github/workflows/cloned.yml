@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       action: ${{ steps.get-output.outputs.action }}
-      build-options: ${{ steps.get-output.outputs.build-options }}
+      build_options: ${{ steps.get-output.outputs.build_options }}
     steps: 
       - name: Parse command
         id: parse-input
@@ -26,7 +26,7 @@ jobs:
         id: get-output
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
-          echo "build-options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
+          echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
 
   testing:
     needs: parsing
@@ -42,17 +42,17 @@ jobs:
     if: ${{ needs.parsing.outputs.action == '/build'}}
     strategy:
       matrix:
-        build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
+        build_options: ${{ fromJSON(needs.parsing.outputs.build_options) }}
     env:
-      ARTIFACT_TYPE: ${{ matrix.build-options.artifact }}
-      FLAVOR: ${{ matrix.build-options.flavor }}
-      BUILD_MODE: ${{ matrix.build-options.mode }}
-      BUILD_OPTION: "${{ matrix.build-options.artifact }} ${{ matrix.build-options.flavor }} ${{ matrix.build-options.mode }}"
+      artifact_type: ${{ matrix.build_options.artifact }}
+      flavor: ${{ matrix.build_options.flavor }}
+      build_mode: ${{ matrix.build_options.mode }}
+      build_option: "${{ matrix.build_options.artifact }} ${{ matrix.build_options.flavor }} ${{ matrix.build_options.mode }}"
     steps:
       - name: build
         run: |
-          echo "$ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
-          echo $BUILD_OPTION
+          echo "$artifact_type $flavor $build_mode"
+          echo $build_option
           
 
 
