@@ -42,12 +42,13 @@ jobs:
     strategy:
       matrix:
         options: ${{ fromJSON(needs.parsing.outputs.options) }}
+    env:
+      mode: ${{ matrix.options.mode }}
     steps:
       - name: buid
-        # env:
-        #   mode: ${{ matrix.options.mode }}
         run: |
           echo ${{ matrix.options.mode }}
+          echo "mode $mode"
           
 
    

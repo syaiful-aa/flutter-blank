@@ -1,13 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const mapOption = function(option) {
-  return {
-    'artifact': 'apk',
-    'flavor': 'staging',
-    'mode': 'release'
-  };
-};
 
 try {
   const command = core.getInput('command').replace('/', '');
@@ -26,3 +19,11 @@ try {
 } catch (error) {
   core.setFailed(error.message);
 }
+
+const mapOption = function(option) {
+  return {
+    'artifact': 'apk',
+    'flavor': 'staging',
+    'mode': 'release'
+  };
+};

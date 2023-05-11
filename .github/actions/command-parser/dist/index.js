@@ -9792,13 +9792,6 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(8781);
 const github = __nccwpck_require__(1637);
 
-const mapOption = function(option) {
-  return {
-    'artifact': 'apk',
-    'flavor': 'staging',
-    'mode': 'release'
-  };
-};
 
 try {
   const command = core.getInput('command').replace('/', '');
@@ -9817,6 +9810,15 @@ try {
 } catch (error) {
   core.setFailed(error.message);
 }
+
+const mapOption = function(option) {
+  return {
+    'artifact': 'apk',
+    'flavor': 'staging',
+    'mode': 'release'
+  };
+};
+
 })();
 
 module.exports = __webpack_exports__;
