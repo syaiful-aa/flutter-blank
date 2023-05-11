@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        options: ${{ fromJSON(needs.parsing.outputs.options) }}
+        options: ${{ needs.parsing.outputs.options }}
     steps:
       - name: buid
         env:
