@@ -29,7 +29,7 @@ jobs:
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "flavors=${{ toJson(steps.parse-input.outputs.flavors) }}" >> $GITHUB_OUTPUT
-          echo $steps.parse-input.outputs.options
+          echo ${{ steps.parse-input.outputs.options }}
           echo ${{ toJson(steps.parse-input.outputs.options) }}
           echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
 
