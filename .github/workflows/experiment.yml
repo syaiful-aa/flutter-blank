@@ -31,7 +31,10 @@ jobs:
           echo "flavors=${{ toJson(steps.parse-input.outputs.flavors) }}" >> $GITHUB_OUTPUT
           echo ${{ steps.parse-input.outputs.options }}
           echo ${{ toJson(steps.parse-input.outputs.options) }}
-          echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
+          # echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
+          echo "options=$(jq -r -c . <<< "${{ steps.parse-input.outputs.options }}")" >> $GITHUB_OUTPUT
+      - name: Check
+        run: jq . <<< '${{ steps.get-output.outputs.options }}'
 
   run-matrix:
     needs: parsing
