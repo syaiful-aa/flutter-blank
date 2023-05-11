@@ -38,11 +38,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        option: ${{ fromJson(needs.parsing.outputs.options) }}
+        include: ${{ fromJson(needs.parsing.outputs.options) }}
     steps:
       - name: buid
+        env:
+          mode: $${{ fromJSON(toJSON(matrix)).mode }}
         run: |
-          echo ${{ matrix.option.mode }}
+          echo $mode
           
 
    
