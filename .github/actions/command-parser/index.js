@@ -2,8 +2,21 @@ const core = require('@actions/core');
 
 try {
   const command = core.getInput('command').replace('/', '');
+
   const action = command.split(' ')[0];
+  const validActions = ['/test', '/build'];
+  if (!validActions.includes(action)) {
+    throw {
+      'message': 'invalid action'
+    }
+  }
+
   const options = command.replace(action, '').split(',').map(mapOption)
+  if (action === '/build' && options.length === 0) {
+    throw {
+      'message': 'none of the build options are valid'
+    }
+  }
 
   core.setOutput("action", action);
   core.setOutput("build-options", JSON.stringify(options));
