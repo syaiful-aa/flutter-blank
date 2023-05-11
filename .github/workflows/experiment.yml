@@ -37,12 +37,14 @@ jobs:
         build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
     env:
       ARTIFACT_TYPE: ${{ matrix.build-options.artifact }}
-      BUILD_MODE: ${{ matrix.build-options.mode }}
       FLAVOR: ${{ matrix.build-options.flavor }}
+      BUILD_MODE: ${{ matrix.build-options.mode }}
+      BUILD_OPTION: "${{ matrix.build-options.artifact }} ${{ matrix.build-options.flavor }} ${{ matrix.build-options.mode }}"
     steps:
       - name: buid
         run: |
-          echo "mode $ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
+          echo "$ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
+          echo $BUILD_OPTION
           
 
    
