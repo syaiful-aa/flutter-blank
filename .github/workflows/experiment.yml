@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: syaiful-aa/actions-experiment/hello-world@v2.0.0
+        uses: syaiful-aa/actions-experiment/hello-world@v2.0.1
         with:
           who-to-greet: 'Mona the Octocat'
       # Use the output from the `hello` step
