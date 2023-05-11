@@ -9792,13 +9792,23 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(8781);
 const github = __nccwpck_require__(1637);
 
+const mapOption = function(option) {
+  return {
+    'artifact': 'apk',
+    'flavor': 'staging',
+    'mode': 'release'
+  };
+};
+
 try {
   const command = core.getInput('command').replace('/', '');
   const action = command.split(' ')[0];
   const flavors = command.replace(action,'').split(',').map(e => e.trim())
+  const options = command.replace(action, '').split(',').map(mapOption)
 
   core.setOutput("action", action);
   core.setOutput("flavors", JSON.stringify(flavors));
+  core.setOutput("options", JSON.stringify(options));
 
 
   // TODO: remove code below. Get the JSON webhook payload for the event that triggered the workflow

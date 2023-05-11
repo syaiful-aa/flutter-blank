@@ -15,6 +15,7 @@ jobs:
     outputs:
       action: ${{ steps.get-output.outputs.action }}
       flavors: ${{ steps.get-output.outputs.flavors }}
+      options: ${{ steps.get-output.outputs.options }}
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,16 +29,18 @@ jobs:
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "flavors=${{ toJson(steps.parse-input.outputs.flavors) }}" >> $GITHUB_OUTPUT
+          echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
 
   run-matrix:
     needs: parsing
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ${{ fromJson(needs.parsing.outputs.flavors) }}
+        option: ${{ fromJson(needs.parsing.outputs.options) }}
     steps:
       - name: buid
-        run: echo ${{ matrix.flavor }}
+        run: |
+          echo ${{ matrix.option.mode }}
           
 
    
