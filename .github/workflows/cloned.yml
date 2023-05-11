@@ -19,7 +19,7 @@ jobs:
     steps: 
       - name: Parse command
         id: parse-input
-        uses: syaiful-aa/actions-experiment/command-parser@v2.0.0
+        uses: syaiful-aa/actions-experiment/command-parser@v3.0.0
         with:
           command: ${{ github.event.comment.body }}
       - name: Get job action and build options
@@ -47,7 +47,7 @@ jobs:
       artifact_type: ${{ matrix.build_options.artifact }}
       flavor: ${{ matrix.build_options.flavor }}
       build_mode: ${{ matrix.build_options.mode }}
-      build_option: "${{ matrix.build_options.artifact }} ${{ matrix.build_options.flavor }} ${{ matrix.build_options.mode }}"
+      build_option: "${{ matrix.build_options.artifact }} --flavor ${{ matrix.build_options.flavor }} --${{ matrix.build_options.mode }}"
     steps:
       - name: build
         run: |
