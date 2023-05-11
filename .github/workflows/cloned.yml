@@ -47,12 +47,12 @@ jobs:
       artifact_type: ${{ matrix.build_options.artifact }}
       flavor: ${{ matrix.build_options.flavor }}
       build_mode: ${{ matrix.build_options.mode }}
-      build_option: "${{ matrix.build_options.artifact }} ${{ matrix.build_options.flavor }} ${{ matrix.build_options.mode }}"
+      # build_option: "${{ matrix.build_options.artifact }} ${{ matrix.build_options.flavor }} ${{ matrix.build_options.mode }}"
     steps:
       - name: build
         run: |
           echo "$artifact_type $flavor $build_mode"
-          echo $build_option
+          # echo $build_option
           
 
 
