@@ -10,6 +10,7 @@ try {
       'message': 'invalid action'
     }
   }
+
   core.setOutput("action", action);
 
   if (action === '/test') {
@@ -22,7 +23,7 @@ try {
       'message': 'none of the build options are valid'
     }
   }
-
+  
   core.setOutput("build-options", JSON.stringify(options));
 } catch (error) {
   core.setFailed(error.message);
