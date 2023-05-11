@@ -12,16 +12,45 @@ try {
 }
 
 function mapOption(option) {
-	let args = option.trim().split(' ')
-  let artifact = 'apk'
-  if (args.length > 2) {
-    artifact = args[0]
-    args.shift()
+  let options = option.trim().split(' ')
+
+  if (options.length < 2) {
+    return null
   }
-  
+
+  let artifact = 'apk'
+  if (options.length > 2) {
+    artifact = options[0]
+    options.shift()
+  }
+
+  const flavor = options[0];
+  const allowedFlavors = ['dev', 'staging', 'production']
+  if (!allowedFlavors.includes(flavor)) {
+    return null
+  }
+
+  const mode = options[1];
+  const allowedMode = ['--debug', '--release']
+  if (!allowedMode.includes(mode)) {
+    return null
+  }
+
+  const buildOption = `${artifact} ${flavor} ${mode}`;
+  const blackListOptions = [
+    'appbundle dev --debug',
+    'appbundle dev --release',
+    'appbundle staging--debug',
+    'appbundle staging--release',
+    'appbundle production --debug'
+  ]
+  if (blackListOptions.includes(buildOption)) {
+    return null
+  }
+
   return {
     'artifact': artifact,
-    'flavor': args[0],
-    'mode': args[1]
+    'flavor': flavor,
+    'mode': mode
   };
 }
