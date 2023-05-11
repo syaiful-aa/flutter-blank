@@ -32,7 +32,7 @@ jobs:
           echo ${{ steps.parse-input.outputs.options }}
           echo ${{ toJson(steps.parse-input.outputs.options) }}
           # echo "options=${{ toJson(steps.parse-input.outputs.options) }}" >> $GITHUB_OUTPUT
-          echo "options=$(jq -r -c . <<< "${{ steps.parse-input.outputs.options }}")" >> $GITHUB_OUTPUT
+          echo "options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.options) }}")" >> $GITHUB_OUTPUT
       - name: Check
         run: jq . <<< '${{ steps.get-output.outputs.options }}'
 
