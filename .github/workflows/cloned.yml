@@ -53,7 +53,7 @@ jobs:
         run: |
           echo "$artifact_type $flavor $build_mode"
           echo $build_option
-      - name: Build Apk $artifact_type --$build_mode
+      - name: Build Apk ${{ env.artifact_type }} --${{ env.build_mode }}
         if: ${{ env.artifact_type == 'apk' && env.build_mode == 'debug'}}
         run: |
           echo "$artifact_type $flavor $build_mode"
