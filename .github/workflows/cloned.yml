@@ -39,7 +39,7 @@ jobs:
   deploy:
     needs: [parsing, testing]
     runs-on: ubuntu-latest
-    if: ${{ (needs.parsing.outputs.action == '/build' && contains(needs.testing.result , 'success')) }}
+    if: ${{ needs.parsing.outputs.action == '/build' && contains(needs.testing.result , 'success') }}
     strategy:
       matrix:
         build_options: ${{ fromJSON(needs.parsing.outputs.build_options) }}
