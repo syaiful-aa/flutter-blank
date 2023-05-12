@@ -60,7 +60,7 @@ jobs:
       - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
-            name: "$artifact_type $flavor $build_mode"
+            name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
             path: ${{ env.artifact_type }}
           
 
