@@ -56,7 +56,12 @@ jobs:
       - name: Build Apk ${{ env.flavor }} --${{ env.build_mode }}
         if: ${{ env.artifact_type == 'apk'}}
         run: |
-          echo "build $artifact_type $flavor $build_mode"
+          echo "build $artifact_type $flavor $build_mode" >> "$artifact_type"
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: "$artifact_type $flavor $build_mode"
+            path: $artifact_type
           
 
 
