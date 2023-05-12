@@ -53,6 +53,10 @@ jobs:
         run: |
           echo "$artifact_type $flavor $build_mode"
           echo $build_option
+      - name: Build Apk
+        if: ${{ artifact_type == 'apk' }}
+        run: |
+          echo "$artifact_type $flavor $build_mode"
           
 
 
