@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
             name: "$artifact_type $flavor $build_mode"
-            path: $artifact_type
+            path: ${{ artifact_type }}
           
 
 
