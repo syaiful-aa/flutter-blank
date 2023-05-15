@@ -74,15 +74,12 @@ jobs:
     steps:
       - name: Check Completion
         run: |
-          if [[ ${{ startsWith(github.event.comment.body, '/test') }} ]]; then
-            if [[ ${{ needs.testing.result == 'success' }} ]]; then
-              exit 0
-            fi
+          if [[ ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}} ]]; then
+            exit 0
           fi
-          if [[ ${{ startsWith(github.event.comment.body, '/build') }} ]]; then
-            if [[ ${{ needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
-              exit 0
-            fi
+          
+          if [[ ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
+            exit 0
           fi
 
           echo "exit"
