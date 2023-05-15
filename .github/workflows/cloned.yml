@@ -66,18 +66,17 @@ jobs:
             path: ${{ env.artifact_type }}
           
   job_completion:
-    needs: [parsing, testing, deploy]
+    needs: [parsing]
     runs-on: ubuntu-latest
-    if: ${{ always() }}
     steps:
       - name: Check Completion
         run: |
-          if [[ ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/test') }} ]]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/test') }} ]]; then
             if [[ ${{ needs.testing.result == 'success' }} ]]
               exit 0
             fi
           fi
-          if [[ ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/build') }} ]]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/build') }} ]]; then
             if [[ ${{ needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
               exit 0
             fi
