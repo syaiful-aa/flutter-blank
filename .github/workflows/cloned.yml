@@ -89,8 +89,11 @@ jobs:
           echo "is_success=false" >> "$GITHUB_OUTPUT"
           exit 1
 
+      - name: check status
+        run: steps.check-completion.outputs.is_success
+
       - name: Mark as Failed
-        if: ${{ steps.check-completion.outputs.is_success == true}}
+        if: ${{ steps.check-completion.outputs.is_success == 'false'}}
         run: |
           curl --request POST \
           --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
@@ -104,7 +107,7 @@ jobs:
           }'
 
       - name: Mark as Completed
-        if: ${{ steps.check-completion.outputs.is_success == true}}
+        if: ${{ steps.check-completion.outputs.is_success == 'true'}}
         run: |
           curl --request POST \
           --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
