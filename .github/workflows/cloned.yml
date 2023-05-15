@@ -74,44 +74,47 @@ jobs:
     if: ${{ always() && github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') )}}
     steps:
       - name: Check Completion
+        id: check-completion
         run: |
-          if ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}}; then
-            echo "masuk test"
+          if [${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}}]; then
+            echo "is_success=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }}; then
-            echo "masuk"
+          if [${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }}]; then
+            echo "is_success=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "exit"          
+          echo "is_success=false" >> "$GITHUB_OUTPUT"
           exit 1
 
-      # - name: Mark as Failed
-      #   run: |
-      #     curl --request POST \
-      #     --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-      #     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-      #     --header 'content-type: application/json' \
-      #     --data '{
-      #       "context": "deploy",
-      #       "state": "failure",
-      #       "description": "Deployment failed",
-      #       "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      #     }'
+      - name: Mark as Failed
+        if: ${{ steps.check-completion.outputs.is_success == true}}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "failure",
+            "description": "Deployment failed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
 
-      # - name: Mark as Completed
-      #   run: |
-      #     curl --request POST \
-      #     --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-      #     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-      #     --header 'content-type: application/json' \
-      #     --data '{
-      #       "context": "deploy",
-      #       "state": "success",
-      #       "description": "Deployment Completed",
-      #       "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      #     }'
+      - name: Mark as Completed
+        if: ${{ steps.check-completion.outputs.is_success == true}}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "success",
+            "description": "Deployment Completed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
 
 
