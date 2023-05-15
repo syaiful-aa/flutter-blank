@@ -85,6 +85,16 @@ jobs:
           fi
 
           echo "exit"
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.testing.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "failure",
+            "description": "Deployment failed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
           exit 1
       - name: Check post data
         run: |
