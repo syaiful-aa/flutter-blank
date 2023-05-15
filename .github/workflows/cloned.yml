@@ -84,6 +84,8 @@ jobs:
               exit 0
             fi
           fi
+
+          echo "exit"
           exit 1
       - name: Check post data
         run: |
