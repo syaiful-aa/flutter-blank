@@ -90,7 +90,8 @@ jobs:
           exit 1
 
       - name: check status
-        run: steps.check-completion.outputs.is_success
+        run: |
+          echo ${{steps.check-completion.outputs.is_success}}
 
       - name: Mark as Failed
         if: ${{ steps.check-completion.outputs.is_success == 'false'}}
