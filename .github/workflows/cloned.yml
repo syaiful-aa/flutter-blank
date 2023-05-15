@@ -87,7 +87,6 @@ jobs:
           fi
 
           echo "is_success=false" >> "$GITHUB_OUTPUT"
-          exit 1
 
       - name: check status
         run: |
