@@ -68,16 +68,16 @@ jobs:
   job_completion:
     runs-on: ubuntu-latest
     needs: [parsing, testing, deploy]
-    if: ${{ always() }}
+    if: ${{ always() && github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') )}}
     steps:
       - name: Check Completion
         run: |
-          if [[ ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/test') }} ]]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/test') }} ]]; then
             if [[ ${{ needs.testing.result == 'success' }} ]]; then
               exit 0
             fi
           fi
-          if [[ ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/build') }} ]]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/build') }} ]]; then
             if [[ ${{ needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
               exit 0
             fi
