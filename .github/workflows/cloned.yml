@@ -85,39 +85,33 @@ jobs:
             exit 0
           fi
 
-          echo "exit"
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "deploy",
-            "state": "failure",
-            "description": "Deployment failed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
+          echo "exit"          
           exit 1
-      - name: Check post data
-        run: |
-          echo "repo: ${{ github.repository }}"
-          echo "head_sha: ${{ needs.setup.outputs.head_sha }}"
-          echo "run id: ${{ github.run_id }}"
 
-      - name: check success
-        run: |
-          echo "success"
+      # - name: Mark as Failed
+      #   run: |
+      #     curl --request POST \
+      #     --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+      #     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+      #     --header 'content-type: application/json' \
+      #     --data '{
+      #       "context": "deploy",
+      #       "state": "failure",
+      #       "description": "Deployment failed",
+      #       "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      #     }'
 
-      - name: Mark as Completed
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "deploy",
-            "state": "success",
-            "description": "Deployment Completed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
+      # - name: Mark as Completed
+      #   run: |
+      #     curl --request POST \
+      #     --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+      #     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+      #     --header 'content-type: application/json' \
+      #     --data '{
+      #       "context": "deploy",
+      #       "state": "success",
+      #       "description": "Deployment Completed",
+      #       "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      #     }'
 
 
