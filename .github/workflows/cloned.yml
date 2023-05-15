@@ -65,7 +65,26 @@ jobs:
             name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
             path: ${{ env.artifact_type }}
           
-
-
+  job_completion:
+    needs: [parsing, testing, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Check Completion
+        run: |
+          if [[ ${{ startsWith(github.event.comment.body, '/test') }} ]]; then
+            if [[ ${{ needs.testing.result == 'success' }} ]]
+              exit 0
+            fi
+          fi
+          if [[ ${{ startsWith(github.event.comment.body, '/build') }} ]]; then
+            if [[ ${{ needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
+              exit 0
+            fi
+          fi
+          exit 1
+      - name: Send context
+        run: |
+          echo "send context"
 
 
