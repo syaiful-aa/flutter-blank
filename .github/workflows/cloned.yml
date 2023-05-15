@@ -74,11 +74,13 @@ jobs:
     steps:
       - name: Check Completion
         run: |
-          if [[ ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}} ]]; then
+          if [ ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}} ]; then
+            echo "masuk"
             exit 0
           fi
-          
-          if [[ ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
+
+          if [ ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]; then
+            echo "masuk"
             exit 0
           fi
 
@@ -89,6 +91,10 @@ jobs:
           echo "repo: ${{ github.repository }}"
           echo "head_sha: ${{ needs.setup.outputs.head_sha }}"
           echo "run id: ${{ github.run_id }}"
+
+      - name: check success
+        run: |
+          echo "success"
 
       - name: Mark as Completed
         run: |
