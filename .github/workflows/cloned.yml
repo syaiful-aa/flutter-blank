@@ -18,12 +18,10 @@ jobs:
       action: ${{ steps.get-output.outputs.action }}
       build_options: ${{ steps.get-output.outputs.build_options }}
     steps: 
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Parse command
         id: parse-input
-        # uses: syaiful-aa/actions-experiment/command-parser@v3.0.0
-        uses: ./github/actions/command-parser
+        uses: syaiful-aa/actions-experiment/command-parser@v3.0.0
+        # uses: ./github/actions/command-parser
         with:
           command: ${{ github.event.comment.body }}
       - name: Get job action and build options
