@@ -17,6 +17,9 @@ jobs:
       base_ref: ${{ steps.comment-branch.outputs.base_ref }}
       head_sha: ${{ steps.comment-branch.outputs.head_sha }}
     steps: 
+      - name: get pull request metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+        id: comment-branch
       - name: Parse command
         id: parse-input
         uses: syaiful-aa/actions-experiment/command-parser@v3.0.1
@@ -28,9 +31,7 @@ jobs:
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
-      - name: get pull request metadata
-        uses: xt0rted/pull-request-comment-branch@v1
-        id: comment-branch
+      
 
   testing:
     needs: setup
