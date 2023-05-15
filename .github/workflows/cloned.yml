@@ -13,13 +13,15 @@ jobs:
 
   parsing:
     runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') ) }}
     outputs:
       action: ${{ steps.get-output.outputs.action }}
       build_options: ${{ steps.get-output.outputs.build_options }}
     steps: 
       - name: Parse command
         id: parse-input
-        uses: syaiful-aa/actions-experiment/command-parser@v3.0.0
+        # uses: syaiful-aa/actions-experiment/command-parser@v3.0.0
+        uses: ./github/actions/command-parser
         with:
           command: ${{ github.event.comment.body }}
       - name: Get job action and build options
