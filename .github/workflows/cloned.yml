@@ -76,12 +76,12 @@ jobs:
       - name: Check Completion
         id: check-completion
         run: |
-          if [${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}}]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}} ]]; then
             echo "is_success=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if [${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }}]; then
+          if [[ ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }} ]]; then
             echo "is_success=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
