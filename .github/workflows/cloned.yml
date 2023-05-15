@@ -73,7 +73,7 @@ jobs:
       - name: Check Completion
         run: |
           if [[ ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/test') }} ]]; then
-            if [[ ${{ needs.testing.result == 'success' }} ]]
+            if [[ ${{ needs.testing.result == 'success' }} ]]; then
               exit 0
             fi
           fi
