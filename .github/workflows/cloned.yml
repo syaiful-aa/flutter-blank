@@ -83,8 +83,17 @@ jobs:
             fi
           fi
           exit 1
-      - name: Send context
+      - name: Mark as Completed
         run: |
-          echo "send context"
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.testing.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ github.token }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "success",
+            "description": "Deployment Completed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
 
 
