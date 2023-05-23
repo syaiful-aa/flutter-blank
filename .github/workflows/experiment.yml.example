@@ -1,0 +1,115 @@
+name: Experiment
+
+on:
+  issue_comment:
+    types:
+      - created
+      
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+      - name: Hello world action step
+        id: hello
+        uses: syaiful-aa/actions-experiment/hello-world@v2.0.0
+        with:
+          who-to-greet: 'Mona the Octocat'
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
+
+  parsing:
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.get-output.outputs.action }}
+      build-options: ${{ steps.get-output.outputs.build-options }}
+    steps: 
+      - name: Parse command
+        id: parse-input
+        uses: syaiful-aa/actions-experiment/command-parser@v2.0.0
+        with:
+          command: ${{ github.event.comment.body }}
+      - name: Get job action and build options
+        id: get-output
+        run: | 
+          echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
+          echo "build-options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build-options) }}")" >> $GITHUB_OUTPUT
+
+  testing:
+    needs: parsing
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo "action: ${{ needs.parsing.outputs.action }}"
+
+  deploy:
+    needs: [parsing, testing]
+    runs-on: ubuntu-latest
+    if: ${{ needs.parsing.outputs.action == '/build'}}
+    strategy:
+      matrix:
+        build-options: ${{ fromJSON(needs.parsing.outputs.build-options) }}
+    env:
+      ARTIFACT_TYPE: ${{ matrix.build-options.artifact }}
+      FLAVOR: ${{ matrix.build-options.flavor }}
+      BUILD_MODE: ${{ matrix.build-options.mode }}
+      BUILD_OPTION: "${{ matrix.build-options.artifact }} ${{ matrix.build-options.flavor }} ${{ matrix.build-options.mode }}"
+    steps:
+      - name: build
+        run: |
+          echo "$ARTIFACT_TYPE $FLAVOR $BUILD_MODE"
+          echo $BUILD_OPTION
+          
+
+   
+  # command-parser:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.event.issue.pull_request && (startsWith(github.event.comment.body, '/build') || startsWith(github.event.comment.body, '/test')) }} 
+  #   outputs:
+  #     arguments: ${{ steps.check-command.outputs.arguments }}
+  #     arguments2: ${{ steps.check-command.outputs.arguments2 }}
+  #     command: ${{ steps.check-command.outputs.command }}
+  #   steps:
+  #     - name: Check command from input
+  #       id: check-command
+  #       run: |
+  #         rawInput="${{ github.event.comment.body }}"
+  #         input=${rawInput///""}
+
+  #         IFS=" " read -ra inputSplitted <<< "$input"
+  #         action=${inputSplitted[0]}
+  #         options=${input/$action/""}
+
+  #         echo $action
+  #         echo "command=$action" >> "$GITHUB_OUTPUT"
+
+  #         echo $options
+
+  #         IFS="," read -ra optionsSplitted <<< "$options"
+  #         for option in "${optionsSplitted[@]}"; do
+  #           echo $option
+  #         done
+
+  #         JSON="[$(echo $optionsSplitted | sed 's/ /, /g')]"
+
+  #         echo "arguments=$JSON" >> "$GITHUB_OUTPUT"
+  #         echo "arguments2=$optionsSplitted" >> "$GITHUB_OUTPUT"
+
+  #         echo "finish"
+
+
+  #     - name: Check output
+  #       id: check-output
+  #       run: |
+  #         echo "start"
+  #         echo ${{ steps.check-command.outputs.command }}
+  #         echo ${{ steps.check-command.outputs.arguments }}
+
+
+

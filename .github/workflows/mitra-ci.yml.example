@@ -1,0 +1,340 @@
+name: Mitra Apps CI/CD
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  testing:
+
+    runs-on: ubuntu-latest
+  
+    if: ${{ (github.event.issue.pull_request && (github.event.comment.body == 'test' || github.event.comment.body == 'deploy')) }}
+  
+    outputs:
+      matrix: ${{ steps.get-build-config.outputs.matrix }}
+      build_config: ${{ steps.get-build-config.outputs.build_config }}
+      head_ref: ${{ steps.comment-branch.outputs.head_ref }}
+      base_ref: ${{ steps.comment-branch.outputs.base_ref }}
+      head_sha: ${{ steps.comment-branch.outputs.head_sha }}
+      flutter_version: ${{ steps.get-flutter-version.outputs.data }}
+      app_version: ${{ steps.get-app-version.outputs.data }}
+    
+    steps:
+      - name: get pull request metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+        id: comment-branch
+      
+      - name: setup branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
+      
+      - name: get PR details
+        uses: 8BitJonny/gh-get-current-pr@2.1.3
+        id: get-pr-details
+        with:
+          github-token: ${{ github.token }}
+          sha: ${{ steps.comment-branch.outputs.head_sha }}
+      
+      - name: Get Flutter Version from pubspec.yaml
+        id: get-flutter-version
+        run: |
+          flutter_version=$(cat ./app/pubspec.yaml | grep '  flutter:' | cut -d ':' -f2 | sed 's/ //')
+          echo "data=$flutter_version" >> $GITHUB_OUTPUT
+      
+      - name: Get App Version from pubspec.yaml
+        id: get-app-version
+        run: |
+          app_version=$(cat ./app/pubspec.yaml | grep 'version' | cut -d ':' -f2 | sed 's/ //')
+          echo "data=$app_version" >> $GITHUB_OUTPUT
+      
+      - name: setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.get-flutter-version.outputs.data }}
+          cache: true
+      
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.CI_SSH_KEY }}
+      
+      - name: Setup Melos and Install Dependencies
+        run: dart pub global activate melos 2.9.0 && dart pub global run melos bs
+      
+      - name: Analyze
+        run: melos run analyzeAll
+      
+      - name: Install lcov
+        uses: hrishikesh-kadam/setup-lcov@v1
+        
+      - name: run testing coverage either on all (main or relase) or impacted module(s) only (on dev or feature)
+        shell: bash
+        run: |
+          git fetch origin ${{ steps.comment-branch.outputs.base_ref }}
+          if [[ ${{ ( startsWith(steps.comment-branch.outputs.base_ref , 'main') || startsWith(steps.comment-branch.outputs.base_ref , 'release') ) }} = true ]]; then
+            echo '======== testing on all modules ========'
+            list_config=''
+          else
+            echo '======== testing on only impacted module(s) ========'
+            list_config='--diff=origin/${{ steps.comment-branch.outputs.base_ref }} '
+          fi
+          if [ "$(melos list $list_config --dir-exists='test' | grep -ohe '\w*_module\w*\|\w*_mitra\w*\|\w*_coin\w*')" ]; then
+            for folder in $(melos list $list_config --dir-exists='test')
+            do
+              melos exec --scope=$folder  -- "flutter test --no-pub --coverage \
+              && lcov --extract coverage/lcov.info 'lib/src/pages/*/*_view_model_impl.dart' 'lib/pages/*/*_view_model_impl.dart' 'lib/src/*/*/*_repository_impl.dart' -o coverage/lcov.info \
+              && genhtml coverage/lcov.info -o coverage"
+              coverage=$(echo $folder : $(melos exec --scope=$folder "lcov --summary ./coverage/lcov.info" | grep "lines......" | cut -d ':' -f2))
+              echo "$folder=$coverage" >> $GITHUB_OUTPUT
+            done
+          else
+            echo no_testing="===== no changed module(s) which needs to test has been found =====" >> $GITHUB_OUTPUT
+          fi
+        id: get-app-testing
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: coverage-details
+            path: ./modules/features/*/coverage
+      
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ steps.get-pr-details.outputs.number }}
+          body: |
+            #Job Summary
+
+            ```${{ toJson(steps.get-app-testing.outputs.*) }}```
+
+            for further detail you can check this action summary
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      
+      - name: define matrix for ${{ matrix.flavor }} environment
+        run: |
+          if [[ ${{ startsWith(steps.comment-branch.outputs.base_ref, 'main') }} = true ]]; then
+            echo '===== define matrix for production environment ====='
+            echo "matrix=['staging','production']" >> $GITHUB_OUTPUT
+            echo "build_config=release" >> $GITHUB_OUTPUT
+          elif [[ ${{ startsWith(steps.comment-branch.outputs.base_ref, 'release') }} = true ]]; then
+            echo '===== define matrix for staging environment ====='
+            echo "matrix=['dev','staging']" >> $GITHUB_OUTPUT
+            echo "build_config=debug" >> $GITHUB_OUTPUT
+          else
+            echo '===== define matrix for dev environment ====='
+            echo "matrix=['dev']" >> $GITHUB_OUTPUT
+            echo "build_config=debug" >> $GITHUB_OUTPUT
+          fi
+        id: get-build-config
+
+  deploy:
+    needs: testing
+    
+    if: ${{ ( github.event.comment.body == 'deploy' && contains(needs.testing.result , 'success') ) }}
+    
+    strategy:
+      matrix:
+        flavor: ${{ fromJson(needs.testing.outputs.matrix) }}
+
+    runs-on: ubuntu-latest
+    
+    outputs:
+      build_code: ${{ steps.get-variables.outputs.build_code }}
+      app_id: ${{ steps.get-variables.outputs.app_id }}
+
+    steps:
+      - name: setup branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.testing.outputs.head_ref }}
+      
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.CI_SSH_KEY }}
+      
+      - name: Setup Keystore
+        working-directory: ./app
+        run: |
+          mkdir -p android/app/keys
+          echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 --decode > android/app/keys/mitra-debug-keystore.jks
+          echo "${{ secrets.DEBUG_KEY_PROPERTIES }}" | base64 --decode > android/debug-key.properties
+          echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/mitra-prod-keystore.jks
+          echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
+      
+      - name: setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "12.x"
+          cache: 'gradle'
+
+      - name: setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.testing.outputs.flutter_version }}
+          cache: true
+            
+      - name: setup variables
+        run: |
+          if [[ ${{matrix.flavor}} = 'production' ]]; then
+            echo '===== running setup variables for flavor production ====='
+            echo "app_id=1:243791631686:android:f5884bd4df2eadffbd4147" >> $GITHUB_OUTPUT
+            echo "build_code=12" >> $GITHUB_OUTPUT
+          elif [[ ${{matrix.flavor}} = 'staging' ]]; then
+            echo '===== running setup variables for flavor staging ====='
+            echo "app_id=1:772573293680:android:3e23d223c6e57e8c7558b5" >> $GITHUB_OUTPUT
+            echo "build_code=11" >> $GITHUB_OUTPUT
+          else
+            echo '===== running setup variables for flavor dev ====='
+            echo "build_code=10" >> $GITHUB_OUTPUT
+            echo "app_id=1:772573293680:android:5bd9ce982d415eab7558b5" >> $GITHUB_OUTPUT
+          fi
+        id: get-variables
+
+      - name: Build
+        working-directory: ./app
+        run: flutter build apk --${{ needs.testing.outputs.build_config }} --flavor ${{ matrix.flavor }} --build-number=${{ format('{0}{1}', steps.get-variables.outputs.build_code, github.run_number) }}
+      
+      - name: Deploy APK ${{ matrix.flavor }} ${{ needs.testing.outputs.build_config }} to The Firebase App Distribution for internal testing
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ steps.get-variables.outputs.app_id }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: mitra-testers
+          file: ./app/build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-${{ needs.testing.outputs.build_config }}.apk 
+      
+      ## running when build is --release and flavor is staging, deploy to firebase
+      - name: Deploy APK staging release to The Firebase App Distribution for field trainers
+        if: ${{ (matrix.flavor == 'staging' && needs.testing.outputs.build_config == 'release') }}
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ steps.get-variables.outputs.app_id }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: field-trainers
+          file: ./app/build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-${{ needs.testing.outputs.build_config }}.apk 
+      
+      - name: notify on deploy
+        if: ${{ success() }}
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Build ${{ needs.testing.outputs.app_version }} ${{ format('{0}{1}', steps.get-variables.outputs.build_code, github.run_number) }} is deployed to ${{ matrix.flavor }}.",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "text": "*Build ${{ needs.testing.outputs.app_version }} ${{ format('{0}{1}', steps.get-variables.outputs.build_code, github.run_number) }}* is deployed to *${{ matrix.flavor }}*.\n:link: Direct to <https://appdistribution.firebase.google.com/testerapps/${{ needs.deploy.outputs.app_id}}|App Tester>.",
+                    "type": "mrkdwn"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "image",
+                      "image_url": "https://firebasestorage.googleapis.com/v0/b/agriaku-mitra.appspot.com/o/agriaku_logo.jpeg?alt=media&token=d055b273-2def-43cd-971b-62c14305ac74",
+                      "alt_text": "agriaku logo"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "${{ needs.testing.outputs.head_ref }} → ${{ needs.testing.outputs.base_ref }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      
+      ## running when build is --release and flavor is production, generate aab file and upload to playstore
+      - name: Build AppBundle
+        if: ${{ ( matrix.flavor == 'production' && needs.testing.outputs.build_config == 'release' ) }}
+        working-directory: ./app
+        run: flutter build appbundle --${{ needs.testing.outputs.build_config }} --flavor ${{ matrix.flavor }}
+
+      - name: Save AAB Artifact
+        if: ${{ ( matrix.flavor == 'production' && needs.testing.outputs.build_config == 'release' ) }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ format('release-{0}', github.run_number) }}
+          path: ./app/build/app/outputs/bundle/productionRelease/app-production-release.aab
+      
+      - name: release draft to playstore
+        if: ${{ ( matrix.flavor == 'production' && needs.testing.outputs.build_config == 'release' ) }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: com.agriaku.mitra
+          track: production
+          status: draft
+          releaseFiles: ./app/build/app/outputs/bundle/productionRelease/app-production-release.aab
+      
+  conclusion:
+    runs-on: ubuntu-latest
+    needs: [testing,deploy]
+    if: ${{ always() }}
+    steps:
+      - name: Mark as Completed
+        if: ${{ success() }}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.testing.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "success",
+            "description": "Deployment Completed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
+      
+      ## run if something's wrong
+      - name: Mark as Error
+        if: ${{ (cancelled() || failure()) }}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.testing.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "failure",
+            "description": "Deployment failed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
+
+      - name: Notify on Error
+        if: ${{ (cancelled() || failure()) }}
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Hi, <!subteam^S031A5Q1C0Y|@app-engineers> Build ${{ needs.testing.outputs.app_version }} failed on ${{ github.event.comment.body }} commands.",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "text": "*CI/CD for ${{ needs.testing.outputs.head_ref }} failed on ${{ github.event.comment.body }} commands. you can see the details on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}| Detail Actions>",
+                    "type": "mrkdwn"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "${{ needs.testing.outputs.head_ref }} → ${{ needs.testing.outputs.base_ref }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

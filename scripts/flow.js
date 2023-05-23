@@ -1,1 +1,7 @@
-console.log(process.env)
+
+function getData() {
+    return 'yahoo'
+}
+
+// getData()
+console.log('kocak')

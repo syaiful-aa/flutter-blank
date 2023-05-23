@@ -1,0 +1,75 @@
+name: Flow test
+
+on:
+  issue_comment:
+    types:
+      - created
+      
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/run-flow') }} 
+    outputs:
+      output1: ${{ steps.step1.outputs.test }}
+      output2: ${{ steps.step2.outputs.test }}
+    steps:
+      - id: step1
+        run: echo "test=hello" >> "$GITHUB_OUTPUT"
+      - id: step2
+        run: echo "test=world" >> "$GITHUB_OUTPUT"
+      
+  job2:
+    runs-on: ubuntu-latest
+    needs: job1
+    outputs:
+      output_inside: ${{ steps.pass.outputs.test }}
+    steps:
+      - name: get pull request metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+        id: comment-branch
+      - name: setup branch 
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.comment-branch.outputs.base_ref }}
+      - name: get PR details
+        uses: 8BitJonny/gh-get-current-pr@2.1.3
+        id: get-pr-details
+        with:
+          github-token: ${{ github.token }}
+          sha: ${{ steps.comment-branch.outputs.head_sha }}
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: pass
+        id: pass
+        env:
+          OUTPUT1: ${{needs.job1.outputs.output1}}
+          OUTPUT2: ${{needs.job1.outputs.output2}}
+        run: |
+          echo "from ${{ fromJSON(steps.get-pr-details.outputs.pr).head.ref }}"
+          echo "to ${{ fromJSON(steps.get-pr-details.outputs.pr).base.ref }}"
+
+
+          echo ${{ steps.comment-branch.outputs.base_ref }}
+          echo ${{ steps.comment-branch.outputs.base_sha }}
+          echo ${{ steps.comment-branch.outputs.head_ref }}
+          echo ${{ steps.comment-branch.outputs.head_sha }}
+
+          echo "$OUTPUT1 $OUTPUT2" 
+
+          
+          FROM_JS=$(node scripts/flow.js)
+          echo $FROM_JS
+          echo "fromJs=$FROM_JS" >> "$GITHUB_OUTPUT"
+          sh scripts/flow.sh morning
+      - name: receive
+        run: | 
+          echo ${{ steps.pass.outputs.test }}
+          echo ${{ steps.pass.outputs.message }}
+          echo ${{ steps.pass.outputs.fromJs }}
+          echo $ANDROID_HOME

@@ -1,0 +1,182 @@
+name: Experiment
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+
+  setup:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') ) }}
+    outputs:
+      action: ${{ steps.get-parsed-input.outputs.action }}
+      build_options: ${{ steps.get-parsed-input.outputs.build_options }}
+      head_ref: ${{ steps.comment-branch.outputs.head_ref }}
+      base_ref: ${{ steps.comment-branch.outputs.base_ref }}
+      head_sha: ${{ steps.comment-branch.outputs.head_sha }}
+      issue_number: ${{ steps.get-pr-details.outputs.number }}
+    steps: 
+      - name: get pull request metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+        id: comment-branch
+        
+      - name: get PR details
+        uses: 8BitJonny/gh-get-current-pr@2.1.3
+        id: get-pr-details
+        with:
+          github-token: ${{ github.token }}
+          sha: ${{ steps.comment-branch.outputs.head_sha }}
+
+      - name: Parse command
+        id: parse-input
+        uses: syaiful-aa/actions-experiment/command-parser@v3.0.1
+        # uses: ./github/actions/command-parser
+        with:
+          command: ${{ github.event.comment.body }}
+
+      - name: Get job action and build options
+        id: get-parsed-input
+        run: | 
+          echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
+          echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
+
+      - name: setup branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
+      
+
+  testing:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Analyze
+        id: analyze
+        # continue-on-error: true
+        run: |
+          echo "trigger failed"
+          exit 1
+
+      - name: Combine analyze result
+        id: combine-analyze-result
+        if: failure() && steps.analyze.outcome == 'failure'
+        shell: bash
+        run: |
+          pwd
+          touch analyze_output_all
+          for file in $(find . -type f -name "analyze_output")
+            do if [ -s $file ]; then
+              cat '$file' >> analyze_output_all 
+              echo "" >> analyze_output_all
+            fi
+          done
+
+          resultprint=$(cat 'analyze_output_all')
+          echo $resultprint
+
+          echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
+
+      - name: Create analyze result comment
+        if: failure() && steps.analyze.outcome == 'failure'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ needs.setup.outputs.issue_number }}
+          body: |
+            #Analyze Failed
+
+            ```${{ steps.combine-analyze-result.result }}```
+
+            for further detail you can check this action summary
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: test
+        run: |
+          echo "action: ${{ needs.setup.outputs.action }}"
+      
+      - name: last
+        run: |
+          echo "last"
+      
+
+  deploy:
+    needs: [setup, testing]
+    runs-on: ubuntu-latest
+    if: ${{ needs.setup.outputs.action == '/build' && contains(needs.testing.result , 'success') }}
+    strategy:
+      matrix:
+        build_options: ${{ fromJSON(needs.setup.outputs.build_options) }}
+    env:
+      artifact_type: ${{ matrix.build_options.artifact }}
+      flavor: ${{ matrix.build_options.flavor }}
+      build_mode: ${{ matrix.build_options.mode }}
+      build_option: "${{ matrix.build_options.artifact }} --flavor ${{ matrix.build_options.flavor }} --${{ matrix.build_options.mode }}"
+    steps:
+      - name: build
+        run: |
+          echo "$artifact_type $flavor $build_mode"
+          echo $build_option
+      - name: Build Apk ${{ env.flavor }} --${{ env.build_mode }}
+        if: ${{ env.artifact_type == 'apk'}}
+        run: |
+          echo "build $artifact_type $flavor $build_mode" >> "$artifact_type"
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
+            path: ${{ env.artifact_type }}
+          
+  job_completion:
+    runs-on: ubuntu-latest
+    needs: [setup, testing, deploy]
+    if: ${{ always() && github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') )}}
+    steps:
+      - name: Check Completion
+        id: check-completion
+        run: |
+          if ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}}; then
+            echo "is_success=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }}; then
+            echo "is_success=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "is_success=false" >> "$GITHUB_OUTPUT"
+
+      - name: check status
+        run: |
+          echo ${{steps.check-completion.outputs.is_success}}
+
+      - name: Mark as Failed
+        if: ${{ steps.check-completion.outputs.is_success == 'false'}}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "failure",
+            "description": "Deployment failed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
+
+      - name: Mark as Completed
+        if: ${{ steps.check-completion.outputs.is_success == 'true'}}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "context": "deploy",
+            "state": "success",
+            "description": "Deployment Completed",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
+
+
