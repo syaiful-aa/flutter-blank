@@ -37,9 +37,48 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: Analyze
+        id: analyze
+        continue-on-error: true
+        run: |
+          echo "trigger failed"
+          exit 1
+
+      - name: Combine analyze result
+        id: combine-analyze-result
+        if: failure() && steps.analyze.outcome == 'failure'
+        run: |
+          for file in $(find . -type f -name "analyze_output"); 
+            do if [ -s $file ]; then
+              cat "$file" >> analyze_output_all
+              echo "" >> analyze_output_all
+            fi
+          done
+
+          echo "result=$(cat "analyze_output_all")" >> $GITHUB_OUTPUT
+
+      - name: Create analyze result comment
+        if: failure() && steps.analyze.outcome == 'failure'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ needs.setup.outputs.issue_number }}
+          body: |
+            #Analyze Failed
+
+            ```${{ steps.combine-analyze-result.result }}```
+
+            for further detail you can check this action summary
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
       - name: test
+        if: success()
         run: |
           echo "action: ${{ needs.setup.outputs.action }}"
+      
+      - name: last
+        run: |
+          echo "last"
+      
 
   deploy:
     needs: [setup, testing]
