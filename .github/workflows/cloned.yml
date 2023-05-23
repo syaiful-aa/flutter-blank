@@ -42,16 +42,16 @@ jobs:
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
 
-      - name: setup branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ steps.comment-branch.outputs.head_ref }}
-      
 
   testing:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: setup branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.head_ref }}
+
       - name: Analyze
         id: analyze
         # continue-on-error: true
