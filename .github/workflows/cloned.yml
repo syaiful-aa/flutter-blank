@@ -42,16 +42,16 @@ jobs:
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
 
-      - name: setup branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ steps.comment-branch.outputs.head_ref }}
-      
 
   testing:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - name: setup branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.head_ref }}
+
       - name: Analyze
         id: analyze
         # continue-on-error: true
@@ -64,17 +64,17 @@ jobs:
         if: failure() && steps.analyze.outcome == 'failure'
         shell: bash
         run: |
-          # touch analyze_output_all
-          # for file in $(find . -type f -name "analyze_output")
-          # do if [ -s $file ]; then
-          #     cat "$file" >> analyze_output_all 
-          #     echo "" >> analyze_output_all
-          #   fi
-          # done
-          # resultprint="$(cat 'analyze_output_all')"
-          # echo "$resultprint"
-          ./combine_analyze_result.sh
-          echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
+          for file in $(find . -type f -name "analyze_output")
+          do if [ -s $file ]; then
+              cat "$file" >> analyze_output_all 
+              echo "" >> analyze_output_all
+            fi
+          done
+
+          delimiter="$(openssl rand -hex 8)"
+          echo "result<<${delimiter}" >> "${GITHUB_OUTPUT}"
+          echo "$(cat analyze_output_all)" >> "${GITHUB_OUTPUT}"
+          echo "${delimiter}" >> "${GITHUB_OUTPUT}"
 
       - name: Create analyze result comment
         if: failure() && steps.analyze.outcome == 'failure'
@@ -84,7 +84,9 @@ jobs:
           body: |
             #Analyze Failed
 
-            ```${{ steps.combine-analyze-result.outputs.result }}```
+            ```
+            ${{ steps.combine-analyze-result.outputs.result }}
+            ```
 
             for further detail you can check this action summary
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
