@@ -72,7 +72,7 @@ jobs:
             fi
           done
 
-          echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
+          echo "result=$(cat analyze_output_all)" >> $GITHUB_OUTPUT
 
       - name: Create analyze result comment
         if: failure() && steps.analyze.outcome == 'failure'

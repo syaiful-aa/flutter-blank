@@ -13,5 +13,5 @@ do if [ -s $file ]; then
     echo "" >> analyze_output_all
 fi
 done
-resultprint="$(cat 'analyze_output_all')"
+resultprint="$(cat analyze_output_all)"
 echo "$resultprint"
