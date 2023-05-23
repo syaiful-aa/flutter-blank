@@ -75,7 +75,7 @@ jobs:
         with:
           issue-number: ${{ needs.setup.outputs.issue_number }}
           body: |
-            #Analyze Failed
+            ## Analyze Failed
 
             ```${{ steps.combine-analyze-result.result }}```
 
