@@ -71,9 +71,7 @@ jobs:
               echo "" >> analyze_output_all
             fi
           done
-          resultprint="$(cat 'analyze_output_all')"
-          echo "$resultprint"
-          # ./combine_analyze_result.sh
+
           echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
 
       - name: Create analyze result comment
@@ -84,7 +82,9 @@ jobs:
           body: |
             #Analyze Failed
 
-            ```${{ steps.combine-analyze-result.outputs.result }}```
+            ```
+            ${{ steps.combine-analyze-result.outputs.result }}
+            ```
 
             for further detail you can check this action summary
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
