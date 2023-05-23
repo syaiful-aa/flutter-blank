@@ -66,11 +66,14 @@ jobs:
         run: |
           pwd
           touch analyze_output_all
+          ls
+
           for file in $(find . -type f -name "analyze_output")
-            do if [ -s $file ]; then
+            # do if [ -s $file ]; then
+            do
               cat '$file' >> analyze_output_all 
               echo "" >> analyze_output_all
-            fi
+            # fi
           done
 
           resultprint=$(cat 'analyze_output_all')
