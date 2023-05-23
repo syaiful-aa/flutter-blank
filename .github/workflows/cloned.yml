@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Analyze
         id: analyze
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           echo "trigger failed"
           exit 1
