@@ -11,15 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') ) }}
     outputs:
-      action: ${{ steps.get-output.outputs.action }}
-      build_options: ${{ steps.get-output.outputs.build_options }}
+      action: ${{ steps.get-parsed-input.outputs.action }}
+      build_options: ${{ steps.get-parsed-input.outputs.build_options }}
       head_ref: ${{ steps.comment-branch.outputs.head_ref }}
       base_ref: ${{ steps.comment-branch.outputs.base_ref }}
       head_sha: ${{ steps.comment-branch.outputs.head_sha }}
+      issue_number: ${{ steps.get-pr-details.outputs.number }}
     steps: 
       - name: get pull request metadata
         uses: xt0rted/pull-request-comment-branch@v1
         id: comment-branch
+        
+      - name: get PR details
+        uses: 8BitJonny/gh-get-current-pr@2.1.3
+        id: get-pr-details
+        with:
+          github-token: ${{ github.token }}
+          sha: ${{ steps.comment-branch.outputs.head_sha }}
+
       - name: Parse command
         id: parse-input
         uses: syaiful-aa/actions-experiment/command-parser@v3.0.1
@@ -27,7 +36,7 @@ jobs:
         with:
           command: ${{ github.event.comment.body }}
       - name: Get job action and build options
-        id: get-output
+        id: get-parsed-input
         run: | 
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
