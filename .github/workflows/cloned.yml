@@ -64,15 +64,15 @@ jobs:
         if: failure() && steps.analyze.outcome == 'failure'
         shell: bash
         run: |
-          pwd
-          touch analyze_output_all
-          ls
+          pwd;
+          touch analyze_output_all;
+          ls;
 
           for file in $(find . -type f -name "analyze_output")
             # do if [ -s $file ]; then
-            do
-              cat '$file' >> analyze_output_all 
-              echo "" >> analyze_output_all
+          do
+            cat '$file' >> analyze_output_all 
+            echo "" >> analyze_output_all
             # fi
           done
 
