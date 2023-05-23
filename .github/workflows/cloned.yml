@@ -64,15 +64,16 @@ jobs:
         if: failure() && steps.analyze.outcome == 'failure'
         shell: bash
         run: |
-          touch analyze_output_all
-          for file in $(find . -type f -name "analyze_output")
-          do if [ -s $file ]; then
-              cat "$file" >> analyze_output_all 
-              echo "" >> analyze_output_all
-            fi
-          done
-          resultprint="$(cat 'analyze_output_all')"
-          echo "$resultprint"
+          # touch analyze_output_all
+          # for file in $(find . -type f -name "analyze_output")
+          # do if [ -s $file ]; then
+          #     cat "$file" >> analyze_output_all 
+          #     echo "" >> analyze_output_all
+          #   fi
+          # done
+          # resultprint="$(cat 'analyze_output_all')"
+          # echo "$resultprint"
+          ./combine_analyze_result.sh
           echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
 
       - name: Create analyze result comment
