@@ -62,7 +62,8 @@ jobs:
       - name: setup flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ needs.setup.outputs.flutter_version }}
+          # flutter-version: ${{ needs.setup.outputs.flutter_version }}
+          flutter-version: '3.3.8'
           cache: true
 
       - name: Analyze
