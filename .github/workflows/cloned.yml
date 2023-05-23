@@ -17,6 +17,7 @@ jobs:
       base_ref: ${{ steps.comment-branch.outputs.base_ref }}
       head_sha: ${{ steps.comment-branch.outputs.head_sha }}
       issue_number: ${{ steps.get-pr-details.outputs.number }}
+      flutter_version: ${{ steps.get-flutter-version.outputs.data }}
     steps: 
       - name: get pull request metadata
         uses: xt0rted/pull-request-comment-branch@v1
@@ -42,6 +43,12 @@ jobs:
           echo "action=${{ toJson(steps.parse-input.outputs.action) }}" >> $GITHUB_OUTPUT
           echo "build_options=$(jq -r -c . <<< "${{ toJson(steps.parse-input.outputs.build_options) }}")" >> $GITHUB_OUTPUT
 
+      - name: Get Flutter Version from pubspec.yaml
+        id: get-flutter-version
+        run: |
+          flutter_version=$(cat ./pubspec.yaml | grep '  flutter:' | cut -d ':' -f2 | sed 's/ //')
+          echo "data=$flutter_version" >> $GITHUB_OUTPUT
+
 
   testing:
     needs: setup
@@ -52,12 +59,16 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.head_ref }}
 
+      - name: setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.setup.outputs.flutter_version }}
+          cache: true
+
       - name: Analyze
         id: analyze
-        # continue-on-error: true
         run: |
-          echo "trigger failed"
-          exit 1
+          flutter analyze --write=analyze_output .
 
       - name: Combine analyze result
         id: combine-analyze-result
