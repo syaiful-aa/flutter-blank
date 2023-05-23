@@ -83,6 +83,8 @@ jobs:
             fi
           done
 
+          sed -i -e 's/$(pwd)//g' analyze_output_all
+
           delimiter="$(openssl rand -hex 8)"
           echo "result<<${delimiter}" >> "${GITHUB_OUTPUT}"
           echo "$(cat analyze_output_all)" >> "${GITHUB_OUTPUT}"
