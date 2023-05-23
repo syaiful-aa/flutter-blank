@@ -64,8 +64,6 @@ jobs:
         if: failure() && steps.analyze.outcome == 'failure'
         shell: bash
         run: |
-          pwd
-          ls
           touch analyze_output_all
           for file in $(find . -type f -name "analyze_output")
           do if [ -s $file ]; then
@@ -73,7 +71,7 @@ jobs:
               echo "" >> analyze_output_all
             fi
           done
-          resultprint=$(cat 'analyze_output_all')
+          resultprint="$(cat 'analyze_output_all')"
           echo "$resultprint"
           echo "result=$(cat 'analyze_output_all')" >> $GITHUB_OUTPUT
 
@@ -85,7 +83,7 @@ jobs:
           body: |
             #Analyze Failed
 
-            ```${{ steps.combine-analyze-result.result }}```
+            ```${{ steps.combine-analyze-result.outputs.result }}```
 
             for further detail you can check this action summary
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
