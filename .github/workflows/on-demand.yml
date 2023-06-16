@@ -24,7 +24,7 @@ on:
        description: slack account
 
 jobs:
-  deploy:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
