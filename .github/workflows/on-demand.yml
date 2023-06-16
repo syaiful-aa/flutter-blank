@@ -21,7 +21,7 @@ on:
         - Appbundle
       slack-id:
        type: string
-       description: the account you want to send notifications to
+       description: slack account
 
 jobs:
   deploy:
