@@ -34,13 +34,6 @@ jobs:
         echo "Flavor:  ${{ github.event.inputs.flavor }}"
         echo "Is debug mode?:  ${{ github.event.inputs.is-debug }}"
         echo "Artifact Type:  ${{ github.event.inputs.artifact }}"
+        echo "send to:  ${{ github.event.inputs.slack-id }}"
         echo "Metadata: ${{ github.ref }} | ${{ github.ref_name }} | ${{ github.sha }}"
-    - name: setup branch 
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.ref }}
-    - name: check dir
-      run: |
-        pwd
-        ls
 
