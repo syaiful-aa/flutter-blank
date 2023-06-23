@@ -166,6 +166,6 @@ jobs:
           sha: ${{ needs.setup.outputs.head_sha }}
           run_id: ${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          is_success: ${{ steps.upload-artifact.outcome == 'success' }}
+          is_success: success()
 
           
