@@ -107,12 +107,19 @@ jobs:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: test
+        id: test
         run: |
           echo "action: ${{ needs.setup.outputs.action }}"
-      
-      - name: last
-        run: |
-          echo "last"
+          
+      - name: Job Completion
+        if: always()
+        uses: uses: syaiful-aa/actions-experiment/command-parser@v3.1.0
+        with:
+          repository: github.repository
+          sha: needs.setup.outputs.head_sha
+          run_id: github.run_id
+          token: secrets.GITHUB_TOKEN
+          is_success: steps.test.outcome == 'success'
       
 
   deploy:
@@ -137,61 +144,18 @@ jobs:
         run: |
           echo "build $artifact_type $flavor $build_mode" >> "$artifact_type"
       - name: upload artifact
+        id: upload-artifact
         uses: actions/upload-artifact@v3
         with:
-            name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
-            path: ${{ env.artifact_type }}
+          name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
+          path: ${{ env.artifact_type }}
+      - name: Job Completion
+        if: always()
+        uses: uses: syaiful-aa/actions-experiment/command-parser@v3.1.0
+        with:
+          repository: github.repository
+          sha: needs.setup.outputs.head_sha
+          run_id: github.run_id
+          token: secrets.GITHUB_TOKEN
+          is_success: steps.upload-artifact.outcome == 'success'
           
-  job_completion:
-    runs-on: ubuntu-latest
-    needs: [setup, testing, deploy]
-    if: ${{ always() && github.event.issue.pull_request && ( startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/build') )}}
-    steps:
-      - name: Check Completion
-        id: check-completion
-        run: |
-          if ${{ startsWith(github.event.comment.body, '/test') && needs.testing.result == 'success'}}; then
-            echo "is_success=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if ${{ startsWith(github.event.comment.body, '/build') && needs.testing.result == 'success' && needs.deploy.result == 'success' }}; then
-            echo "is_success=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "is_success=false" >> "$GITHUB_OUTPUT"
-
-      - name: check status
-        run: |
-          echo ${{steps.check-completion.outputs.is_success}}
-
-      - name: Mark as Failed
-        if: ${{ steps.check-completion.outputs.is_success == 'false'}}
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "deploy",
-            "state": "failure",
-            "description": "Deployment failed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
-
-      - name: Mark as Completed
-        if: ${{ steps.check-completion.outputs.is_success == 'true'}}
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ needs.setup.outputs.head_sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "deploy",
-            "state": "success",
-            "description": "Deployment Completed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
-
-
