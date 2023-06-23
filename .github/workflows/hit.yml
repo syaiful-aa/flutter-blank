@@ -9,6 +9,10 @@ on:
       is_success:
         type: boolean
         description: is success
+      check_context:
+        type: string
+        description: check context
+
 
 jobs:
 
@@ -23,3 +27,4 @@ jobs:
           run_id: 5353983372
           token: ${{ secrets.GITHUB_TOKEN }}
           is_success: ${{ inputs.is_success }}
+          check_context: ${{ inputs.check_context }}
