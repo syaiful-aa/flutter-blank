@@ -1,4 +1,4 @@
-name: Ondemand Build
+name: HIT
 
 on:
   workflow_dispatch:
