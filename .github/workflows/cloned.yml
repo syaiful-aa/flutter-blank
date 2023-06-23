@@ -113,7 +113,7 @@ jobs:
           
       - name: Job Completion
         if: always()
-        uses: syaiful-aa/actions-experiment/command-parser@v3.1.0
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
         with:
           repository: github.repository
           sha: needs.setup.outputs.head_sha
@@ -151,7 +151,7 @@ jobs:
           path: ${{ env.artifact_type }}
       - name: Job Completion
         if: always()
-        uses: syaiful-aa/actions-experiment/command-parser@v3.1.0
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
         with:
           repository: github.repository
           sha: needs.setup.outputs.head_sha
