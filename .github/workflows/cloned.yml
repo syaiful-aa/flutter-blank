@@ -115,11 +115,11 @@ jobs:
         if: always()
         uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
         with:
-          repository: github.repository
-          sha: needs.setup.outputs.head_sha
-          run_id: github.run_id
-          token: secrets.GITHUB_TOKEN
-          is_success: steps.test.outcome == 'success'
+          repository: ${{ github.repository }}
+          sha: ${{ needs.setup.outputs.head_sha }}
+          run_id: ${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          is_success: ${{ steps.test.outcome == 'success' }}
       
 
   deploy:
@@ -153,9 +153,10 @@ jobs:
         if: always()
         uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
         with:
-          repository: github.repository
-          sha: needs.setup.outputs.head_sha
-          run_id: github.run_id
-          token: secrets.GITHUB_TOKEN
-          is_success: steps.upload-artifact.outcome == 'success'
+          repository: ${{ github.repository }}
+          sha: ${{ needs.setup.outputs.head_sha }}
+          run_id: ${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          is_success: ${{ steps.upload-artifact.outcome == 'success' }}
+
           
