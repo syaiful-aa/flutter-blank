@@ -152,16 +152,12 @@ jobs:
         if: ${{ env.artifact_type == 'apk'}}
         run: |
           echo "build $artifact_type $flavor $build_mode" >> "$artifact_type"
-      # - name: break job
-      #   run: exit 1
-
       - name: upload artifact
         id: upload-artifact
         uses: actions/upload-artifact@v3
         with:
           name: "${{ env.artifact_type }} ${{ env.flavor }} ${{ env.build_mode }}"
           path: ${{ env.artifact_type }}
-
       - name: Job Completion
         if: always()
         uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
@@ -170,6 +166,6 @@ jobs:
           sha: ${{ needs.setup.outputs.head_sha }}
           run_id: ${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          is_success: {{ success() }}
+          is_success: ${{ steps.upload-artifact.outcome == 'success' }}
 
           
