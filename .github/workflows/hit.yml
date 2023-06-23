@@ -13,11 +13,13 @@ on:
 jobs:
 
   hit:
-    - name: Job Completion
-      uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
-      with:
-        repository: ${{ github.repository }}
-        sha: ${{ inputs.sha }}
-        run_id: 5353983372
-        token: ${{ secrets.GITHUB_TOKEN }}
-        is_success: ${{ inputs.is_success }}
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Job Completion
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
+        with:
+          repository: ${{ github.repository }}
+          sha: ${{ inputs.sha }}
+          run_id: 5353983372
+          token: ${{ secrets.GITHUB_TOKEN }}
+          is_success: ${{ inputs.is_success }}
