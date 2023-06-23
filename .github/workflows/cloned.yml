@@ -112,7 +112,7 @@ jobs:
           echo "action: ${{ needs.setup.outputs.action }}"
           
       - name: Job Completion
-        if: always()
+        if: always() && startsWith(github.event.comment.body, '/test')
         uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
         with:
           repository: ${{ github.repository }}
