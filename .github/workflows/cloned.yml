@@ -50,7 +50,7 @@ jobs:
           echo "data=$flutter_version" >> $GITHUB_OUTPUT
       - name: Job Completion
         if: failure()
-        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
         with:
           repository: ${{ github.repository }}
           sha: ${{ steps.comment-branch.outputs.head_sha }}
@@ -122,7 +122,7 @@ jobs:
           
       - name: Job Completion
         if: always() && startsWith(github.event.comment.body, '/test')
-        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
         with:
           repository: ${{ github.repository }}
           sha: ${{ needs.setup.outputs.head_sha }}
@@ -160,7 +160,7 @@ jobs:
           path: ${{ env.artifact_type }}
       - name: Job Completion
         if: always()
-        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
         with:
           repository: ${{ github.repository }}
           sha: ${{ needs.setup.outputs.head_sha }}
