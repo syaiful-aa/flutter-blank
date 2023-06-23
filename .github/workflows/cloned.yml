@@ -48,6 +48,15 @@ jobs:
         run: |
           flutter_version=$(cat ./pubspec.yaml | grep '  flutter:' | cut -d ':' -f2 | sed 's/ //')
           echo "data=$flutter_version" >> $GITHUB_OUTPUT
+      - name: Job Completion
+        if: failure()
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.0
+        with:
+          repository: ${{ github.repository }}
+          sha: ${{ needs.setup.outputs.head_sha }}
+          run_id: ${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          is_success: false
 
 
   testing:
