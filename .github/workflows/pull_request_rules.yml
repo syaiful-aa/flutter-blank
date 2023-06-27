@@ -3,8 +3,6 @@ name: Run Danger
 on:
   pull_request:
     types: [ready_for_review, edited, synchronize, reopened]
-    branches-ignore: 
-      - 'main'
 
 jobs:
   check_danger:
