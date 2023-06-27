@@ -9,6 +9,7 @@ on:
 jobs:
   check_danger:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
     steps:
       - name: get pull request metadata
         id: pr-metadata
