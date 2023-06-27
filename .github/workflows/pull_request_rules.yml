@@ -1,0 +1,22 @@
+name: Run Danger
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check_danger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Run danger
+        run: npx danger ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
