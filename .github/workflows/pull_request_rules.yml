@@ -22,17 +22,17 @@ jobs:
           echo "is skipped: ${{ steps.validate-branch.outputs.is_skipped == true }}"
 
       - name: Checkout code
-        if: steps.validate-branch.outputs.is_skipped == false
+        if: steps.validate-branch.outputs.is_skipped == 'false'
         uses: actions/checkout@v3
 
       - name: Setup Node.js
-        if: steps.validate-branch.outputs.is_skipped == false
+        if: steps.validate-branch.outputs.is_skipped == 'false'
         uses: actions/setup-node@v1
         with:
           node-version: 16
 
       - name: Run danger
-        if: steps.validate-branch.outputs.is_skipped == false
+        if: steps.validate-branch.outputs.is_skipped == 'false'
         run: npx danger ci
         env:
           GITHUB_TOKEN: ${{ github.token }}
