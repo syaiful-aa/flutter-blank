@@ -2,21 +2,37 @@ name: Run Danger
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [ready_for_review, edited, synchronize, reopened]
+    branches-ignore: ['main']
 
 jobs:
   check_danger:
     runs-on: ubuntu-latest
     steps:
+      - name: get pull request metadata
+        id: pr-metadata
+        uses: xt0rted/pull-request-comment-branch@v1
+
+      - name: validate branch
+        id: validate-branch
+        run: echo "is_valid=${{ startsWith(github.head_ref, 'release/') && github.base_ref == 'main' }}" >> $GITHUB_OUTPUT
+
+      - name: check validation
+        run: |
+          echo "is valid: ${{ steps.validate-branch.outputs.is_valid == true }}"
+
       - name: Checkout code
+        if: steps.validate-branch.outputs.is_valid == true
         uses: actions/checkout@v3
 
       - name: Setup Node.js
+        if: steps.validate-branch.outputs.is_valid == true
         uses: actions/setup-node@v1
         with:
           node-version: 16
 
       - name: Run danger
+        if: steps.validate-branch.outputs.is_valid == true
         run: npx danger ci
         env:
           GITHUB_TOKEN: ${{ github.token }}
