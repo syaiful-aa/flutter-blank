@@ -179,8 +179,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           is_success: ${{ steps.upload-artifact.outcome == 'success' }}
           notify_on_failure: true
-          slack_webhook_url: 'fffffffff'
-          app_version: '1.0.0'
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          app_version: '1.x.x'
           head_ref: ${{ needs.setup.outputs.head_ref }}
           base_ref: ${{ needs.setup.outputs.base_ref }}
 
