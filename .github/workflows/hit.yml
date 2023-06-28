@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Job Completion
-        uses: syaiful-aa/actions-experiment/send-check-status@v3.1.1
+        uses: syaiful-aa/actions-experiment/send-check-status@v3.2.0
         with:
           repository: ${{ github.repository }}
           sha: ${{ inputs.sha }}
