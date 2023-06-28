@@ -130,6 +130,11 @@ jobs:
           run_id: ${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}
           is_success: ${{ steps.test.outcome == 'success' }}
+          notify_on_failure: true
+          slack_webhook_url: 'fffffffff'
+          app_version: '1.0.0'
+          head_ref: ${{ needs.setup.outputs.head_ref }}
+          base_ref: ${{ needs.setup.outputs.base_ref }}
       
 
   deploy:
