@@ -1,0 +1,33 @@
+name: Auto Update Main Version
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  validation:
+    if: github.event.pull_request.merged && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo "The PR was merged"
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+    - name: Git config
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+    - name: Get version
+      run: |
+        full_version=$(cat ./pubspec.yaml | grep 'version' | cut -d ':' -f2 | sed 's/ //' | cut -d'+' -f1)
+        echo "full_version=$full_version" >> $GITHUB_OUTPUT
+        
+        major_version=$(echo "$full_version" | cut -d'.' -f1)
+        echo "major_version=$major_version" >> $GITHUB_OUTPUT
+
+    - name: Tag new target
+      run: git tag -f ${{ github.event.inputs.major_version }} ${{ github.event.inputs.target }}
+    - name: Push new tag
+      run: git push origin ${{ github.event.inputs.major_version }} --force

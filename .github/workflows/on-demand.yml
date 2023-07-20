@@ -28,6 +28,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: setup branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
     - name: Entry point
       run: |
         echo "Build artifact with these configuration: ${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs.use-emoji == 'true'] }} ${{ github.event.inputs.name }}"
@@ -36,4 +46,5 @@ jobs:
         echo "Artifact Type:  ${{ github.event.inputs.artifact }}"
         echo "send to:  ${{ github.event.inputs.slack-id }}"
         echo "Metadata: ${{ github.ref }} | ${{ github.ref_name }} | ${{ github.sha }}"
+    
 
