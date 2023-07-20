@@ -31,7 +31,7 @@ jobs:
     - name: setup branch
       uses: actions/checkout@v3
       with:
-        ref: ${{ github.ref }}
+        ref: ${{ github.ref_name }}
 
     - name: Dump GitHub context
       env:
